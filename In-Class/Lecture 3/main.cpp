@@ -30,11 +30,11 @@ int main(){
 
 
     //test 3
-    // vector <int> d = {1,2,3,4,5,6,7,8,9};
-    // d = MultiplesFilter(d, 3);
-    // for (int i = 0; i < d.size(); i++){
-    //     std::cout << d[i] << std::endl;
-    // }
+    vector <int> d = {1,2,3,4,5,6,7,8,9};
+    d = MultiplesFilter(d, 3);
+    for (int i = 0; i < d.size(); i++){
+        std::cout << d[i] << std::endl;
+    }
 }
 
 

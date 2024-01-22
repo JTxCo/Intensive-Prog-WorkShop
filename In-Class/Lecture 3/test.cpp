@@ -14,3 +14,14 @@ TEST_CASE("VECTOR MATCHING", "[match]"){
     vector<int> c = MatchVectors(a,b);
     REQUIRE(c == std::vector<int>({2,4,6,8}));
 }
+
+TEST_CASE("MULTIPLES FILTER", "[filter]"){
+    vector <int> d = {1,2,3,4,5,6,7,8,9};
+    d = MultiplesFilter(d, 3);
+    REQUIRE(d == std::vector<int>({1,2,4,5,7,8}));
+}
+TEST_CASE("Dividing by too large num", "[filter]"){
+    vector <int> d = {1,2,3,4,5,6,7,8,9};
+    d = MultiplesFilter(d, 10);
+    REQUIRE(d == std::vector<int>({1,2,3,4,5,6,7,8,9}));
+}
