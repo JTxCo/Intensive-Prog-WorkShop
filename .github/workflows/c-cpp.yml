@@ -17,3 +17,4 @@ jobs:
       run: |
         cd "In-Class/Lecture 3"
         make
+        ./target2
