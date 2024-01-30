@@ -16,3 +16,7 @@ main: Circle.o main.cpp
 
 # Circle.o: Circle.cpp
 # 	$(CXX) $(CXXFLAGS) -c Circle.cpp
+
+
+newCircle: Circle.cpp Circle.h
+	$(CXX) $(CXXFLAGS) -c Circle.cpp -o newCircle.o
