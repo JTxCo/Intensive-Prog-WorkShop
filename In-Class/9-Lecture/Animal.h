@@ -35,7 +35,7 @@ public:
 	Animal(sound + " chirp!")
 	{}
 
-	int GetSpeed() { return 5; };
+	virtual int GetSpeed() { return 5; };
 
 };
 class Penguin: public Bird {
