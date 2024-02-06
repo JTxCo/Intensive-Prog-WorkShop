@@ -7,6 +7,7 @@
         "tuple": "cpp",
         "queue": "cpp",
         "new": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "iosfwd": "cpp"
     }
 }

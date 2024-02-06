@@ -7,30 +7,13 @@ using std::string;
 using std::pair;
 using std::vector;
 using std::cout;
-// struct Position {
-// 	int row;
-// 	int col;
-
-// 	// // already implemented for you!
-// 	// bool operator==(const Position &other) {
-// 	// 	return row == other.row && col == other.col;
-// 	// }
-// };
-
-
-
-// I think that the above position struct is not needed, as position is just 2 ints and can be passed as such which i think is a lot more simplistic
-
 
 
 
 
 class Player {
 public:
-	// TODO: implement
-	// Player(const std::string name, const bool is_human);  
-	
-	// constructor
+
 	private:
 	// I will change the constructor to take 2 ints for the position
 	// I will also add default values for the other fields

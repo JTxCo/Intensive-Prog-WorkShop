@@ -8,7 +8,7 @@
 using std::vector;
 using std::pair;
 // you may change this enum as you need
-enum class SquareType { Wall, Dots, Pacman, Treasure, Enemies, Empty, PowerfulPacman, Trap, EnemySpecialTreasure };
+enum class SquareType { Wall, Dot, Pacman, Treasure, Enemy, Empty, PowerUP, Trap, EnemySpecialTreasure };
 
 // TODO: implement
 std::string SquareTypeStringify(SquareType sq);
@@ -52,7 +52,7 @@ public:
 	// // get the possible Positions that a Player/Enemy could move to
 	// // (not off the board or into a wall)
 	// std::vector<Position> GetMoves(Player *p);
-	vector<pair<int, int>> GetMoves(Player *p);
+	vector<pair<int, int>> GetPossibleMoves(Player *p);
 	// this will return a vector of possible positions that a player can move to
 	// this will be based on the current position of the player and the board
 	// this will also take into account the walls and the other players
@@ -80,7 +80,7 @@ public:
 	// this will also take into account the dots and the treasure
 
 	// if i rewrite this i would have:
-	// bool MovePlayer(Player *p, std::pair<int, int> pos, std::vector<Player*> enemylist);
+	bool MovePlayer(Player *p, int row, int col, vector<Player*> enemylist);
 	// this would just use the conventional int pair cordinates
 
 
@@ -97,13 +97,13 @@ public:
 	// this will also take into account the dots and the treasure
 
 	// if i rewrite this i would have:
-	// bool MoveEnemy(Player *p, std::pair<int, int> pos);
+	bool MoveEnemy(Player *p, std::pair<int, int> pos);
 
 
 
 
 	// // You probably want to implement this
-	// friend std::ostream& operator<<(std::ostream& os, const Board &b);
+	friend std::ostream& operator<<(std::ostream& os, const Board &b);
 	// this will print the board to the console
 	// this will be based on the current state of the board
 	// this will also take into account the players and the enemies
@@ -122,7 +122,9 @@ private:
 	int turn_count_;
     int dots_count_;
     bool GameOver;
-
+	// Array of enemies
+	vector<Player *> enemies_;
+	// you may add more fields, as needed
 public:
 	// TODO: implement these functions
 	Game(); // constructor
@@ -139,6 +141,15 @@ public:
 	// this will also take in the number of enemies to generate
 	// and return the list of hte enemies generated
 
+	// free memory
+	~Game();
+
+
+	//for the player this will display the available options and then take the input
+	pair<int,int> PresentMoveOptions(Player *p);
+
+
+
 
 	// // have the given Player take their turn
 	// void TakeTurn(Player *p,std::vector<Player*> enemylist);
@@ -147,11 +158,11 @@ public:
 	// i think that this should not need to take in the list of enemies because the enemies should be on the board
 	// since the board should know 
 	// this will also take into account the other players and the walls
-	void TakeTurn(Player *p);
+	bool TakeTurn(Player *p);
 	// this will have the given player take their turn
 
 	// //have the enemy take turn
-	void TakeTurnEnemy(Player *p);
+	bool TakeTurnEnemy(Player *enemy);
 	// this will have the enemy take their turn
 	bool IsGameOver(Player *p);
 	// this will check if the game is over

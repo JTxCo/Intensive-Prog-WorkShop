@@ -4,12 +4,17 @@
 #include <utility>
 #include <vector>
 #include <queue>
+#include <regex>
 using std::string;
 using std::pair;
 using std::vector;
 using std::make_pair;
 using std::priority_queue;
 using std::reverse;
+using std::cout;
+using std::endl;
+using std::cin;
+using std::regex;
 Board::Board(){
     // Dynamically allocate memory for the 2D array
     arr_ = new SquareType*[rows];
@@ -51,7 +56,7 @@ bool Board::notWall(int row, int col) {
     }
     return true;
 }
-vector<pair<int, int>> Board::GetMoves(Player* p) {
+vector<pair<int, int>> Board::GetPossibleMoves(Player* p) {
     // Obtain the current position of the player
     int currRow = p->get_y_pos();
     int currCol = p->get_x_pos();
@@ -128,7 +133,7 @@ vector<pair<int, int>> Board::PathToPosition(Player* p, int endRow, int endCol) 
 
         // Get all valid adjacent positions
         // Modify this as needed based on the rules of your game
-        vector<pair<int, int>> neighbors = GetMoves(p);
+        vector<pair<int, int>> neighbors = GetPossibleMoves(p);
 
         for (auto& neighbor : neighbors) {
             int neighborRow = neighbor.first;
@@ -165,6 +170,189 @@ vector<pair<int, int>> Board::PathToPosition(Player* p, int endRow, int endCol) 
 }
 
 
+// Move a player to a new position on the board. Return true if they moved successfully, false otherwise.
+// need to check to do changes based on where the player lands, if there is treasure, if there is a dot, if there is an enemy, if there is a wall
+bool Board::MovePlayer(Player* p, int row, int col, vector<Player*> enemylist) {
+    // Check if the move is valid
+    if (notWall(row, col)) {
+        // Check if the position is occupied by another player
+        for (auto& enemy : enemylist) {
+            if (enemy->get_x_pos() == col && enemy->get_y_pos() == row) {
+                return false;
+            }
+        }
+        // Move the player to the new position
+        p->SetPosition(row, col);
+        return true;
+    }
+    return false;
+}
 
-Game::Game() {}
-Game::Game(Player* human, const int enemies) {}
+
+// Move an enemy to a new position on the board. Return true if they moved successfully, false otherwise.
+// could also have this use the same function as the player
+bool Board::MoveEnemy(Player* p, pair<int, int> pos) {
+    // Check if the move is valid
+    if (notWall(pos.first, pos.second)) {
+        // Move the enemy to the new position
+        p->SetPosition(pos.first, pos.second);
+        return true;
+    }
+    return false;
+}
+
+
+
+
+
+
+
+Game::Game() {
+    // Create a new game
+    Board* board = new Board();
+    //setting variables
+    turn_count_ = 0;
+    dots_count_ = 0;
+    GameOver = false;
+    // Create a new player
+    Player* human = new Player("Human", true);
+    players_.push_back(human);
+    // Create new enemies
+    for (int i = 0; i < 2; i++) {
+        Player* enemy = new Player("Enemy", false);
+        players_.push_back(enemy);
+    }
+}
+Game::Game(Player* human, const int enemies) {
+    // Create a new game
+    Board* board = new Board();
+    //setting variables
+    turn_count_ = 0;
+    dots_count_ = 0;
+    GameOver = false;
+    // Create a new player
+    players_.push_back(human);
+    // Create new enemies
+    for (int i = 0; i < enemies; i++) {
+        Player* enemy = new Player("Enemy", false);
+        players_.push_back(enemy);
+    }
+}
+
+Game::~Game() {
+    // Free memory
+    delete board_;
+    for (auto& player : players_) {
+        delete player;
+    }
+}
+
+
+
+
+pair<int,int> Game::PresentMoveOptions(Player *p){
+    // Obtain the current position of the player
+    int currRow = p->get_y_pos();
+    int currCol = p->get_x_pos();
+    pair<int, int> choosenMove = make_pair(-100, -100);
+    // Check the adjacent positions for valid moves, will not allow to move into walls
+    vector<pair<int, int>> positions = board_->GetPossibleMoves(p);
+    // Present the options to the player
+    cout << "Possible moves: " << endl;
+    for (int i = 0; i < positions.size(); i++) {
+        cout << i << ": " << positions[i].first << ", " << positions[i].second << endl;
+    }
+    // Take the input from the player
+    std::regex coordinate_pattern("\\((\\d+),(\\d+)\\)");
+    string choice;
+    cout << "Enter the number of the position you want to move to: ";
+    cin >> choice;
+    std::smatch result;
+    if (std::regex_match(choice, result, coordinate_pattern)) {
+        int x = std::stoi(result[1]);
+        int y = std::stoi(result[2]);
+        choosenMove = make_pair(x, y);
+        std::cout << "X: " << x << ", Y: " << y << std::endl;
+    } else {
+        std::cout << "Invalid input.\n";
+    }
+    return choosenMove;
+}
+
+
+
+
+
+bool Game::TakeTurn(Player *p){
+    // Getting the current position of the player
+    // int row = p->get_y_pos();
+    // int col = p->get_x_pos();
+    // get the choice of move from the player
+    pair<int, int> move = PresentMoveOptions(p);
+    if (move==make_pair(-100, -100)) {
+        return false;
+    }
+
+    // Move the player to the new position
+    board_->MovePlayer(p, move.first, move.second, players_);
+    // Check if the player landed on a dot, if it has remove the dot from the board and add points 1
+    SquareType landedPostion = board_->GetSquareValue(move.first, move.second);
+    // switch staement to check what the player landed on
+    switch(landedPostion){
+        case SquareType::Dot:
+            dots_count_--;
+            board_->SetSquareValue(move.first, move.second, SquareType::Empty);
+            p->ChangePoints(1);
+            break;
+        case SquareType::Treasure:
+            p->setHasTreasure();
+            p->ChangePoints(100); 
+            break;
+        case SquareType::Trap:
+            p->has_died();
+            p->setLives(p->getLives() - 1);
+            break;
+            
+        default:
+            break;
+    }
+
+
+
+
+
+    // Check if the player landed on the treasure, if they have set the treasure flag and add points 100
+    // if (board_->GetSquareValue(row, col) == SquareType::Treasure) {
+    //     p->setHasTreasure();
+    //     p->ChangePoints(100);
+    // }
+    // Check if the player landed on an enemy
+    for (auto& enemy : players_) {
+        if (enemy->isHuman() == false) {
+            if (enemy->get_x_pos() == col && enemy->get_y_pos() == row) {
+                p->has_died();
+                p->setLives(p->getLives() - 1);
+                // need to call a respawn function
+                // move the player to the same location it died at
+            }
+        }
+    }
+
+    // Check if the player landed on the enemy special treasure
+    if (board_->GetSquareValue(row, col) == SquareType::EnemySpecialTreasure) {
+        // Move the player to a random position
+        int randomRow = rand() % board_->rows;
+        int randomCol = rand() % board_->cols;
+        board_->MovePlayer(p, randomRow, randomCol, players_);
+    }
+    // Check if the player landed on a trap
+    if (board_->GetSquareValue(row, col) == SquareType::Trap) {
+        p->has_died();
+        p->setLives(p->getLives() - 1);
+    }
+    // Check if the player has won
+    if (dots_count_ == 0)
+
+
+}
+
