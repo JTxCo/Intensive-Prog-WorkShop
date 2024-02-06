@@ -3,6 +3,10 @@
         "__split_buffer": "cpp",
         "deque": "cpp",
         "string": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "tuple": "cpp",
+        "queue": "cpp",
+        "new": "cpp",
+        "typeinfo": "cpp"
     }
 }

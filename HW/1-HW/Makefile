@@ -1,20 +1,26 @@
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall
+CXXFLAGS = -std=c++20 -Wall -Iinclude
 
-SRCS = Game.cpp Player.cpp Main.cpp 
-# using main to run the game
-OBJS = $(SRCS:.cpp=.o)
+SRCDIR = src
+OBJDIR = obj
+INCDIR = include
+
+SRCS = $(wildcard $(SRCDIR)/*.cpp)
+OBJS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 TARGET = Main
 
 .PHONY: all clean
 
-all: $(TARGET)
+all: obj_dir $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(TARGET)
 
-.cpp.o:
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+obj_dir:
+	mkdir -p $(OBJDIR)
+
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJDIR)/*.o $(TARGET)
