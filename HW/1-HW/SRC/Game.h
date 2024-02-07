@@ -20,8 +20,8 @@ private:
 	SquareType **arr_;//this is how the board is stored, this is based on the default constructor
 	// if you want to set to another size then this will be set based on the input
 	// SquareType arr_[rows][cols];
-
-
+	bool **isAvailable;
+	vector<pair<int, int>> availableSquares;
 	// this is the amount of rows and columns in the board
 
 	// you may add more fields, as needed
@@ -42,12 +42,18 @@ public:
 	// // TODO: you MUST implement the following functions
 	// SquareType get_square_value(Position pos) const;
 	SquareType GetSquareValue(int row, int col);
+	// this function looks into the isAvailable array and checks if the postion is available to move to
+	// this will return true if the position is available and false if it is not
+	// the only positions available are dots and empty, all else are not available 
+	bool isSquareAvailable(int row, int col);
 	bool notWall(int row, int col);
 	// // set the value of a square to the given SquareType
 	// void SetSquareValue(Position pos, SquareType value);
 	void SetSquareValue(int row, int col, SquareType value);
 	// look in the array and set the value of the square to the given SquareType
 	// this will use the row n
+
+	void setAvailableSquares();
 
 	// // get the possible Positions that a Player/Enemy could move to
 	// // (not off the board or into a wall)
@@ -64,8 +70,7 @@ public:
 	// this will return a vector of possible positions that a player can move to in the coventional x and y coordinates as ints
 
 
-
-
+	//
 
 
 
@@ -83,7 +88,7 @@ public:
 	bool MovePlayer(Player *p, int row, int col, vector<Player*> enemylist);
 	// this would just use the conventional int pair cordinates
 
-
+	bool MovePlayerRandom(Player *p, vector<Player*> enemylist);
 
 
 
@@ -110,7 +115,6 @@ public:
 	// this will also take into account the walls and the dots
 	// this will also take into account the treasure and the traps
 	// this will also take into account the powerful pacman and the enemy special treasure
-
 
 
 };  // class Board

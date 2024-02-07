@@ -15,23 +15,35 @@ using std::cout;
 using std::endl;
 using std::cin;
 using std::regex;
-Board::Board(){
+
+Board::Board() : rows(10), cols(10) { // Set default size of board to 10x10
     // Dynamically allocate memory for the 2D array
+    // Initialize all positions as available, this might change later based on how the board set up is done later
     arr_ = new SquareType*[rows];
+    isAvailable = new bool*[rows];
     for (int i = 0; i < rows; ++i) {
         arr_[i] = new SquareType[cols];
+        isAvailable[i] = new bool[cols];
+        for (int j = 0; j < cols; ++j) {
+            isAvailable[i][j] = true; 
+        }
     }
 }
 
 // Custom constructor to set rows and cols
+// Initialize all positions as available, this might change later 
 Board::Board(int rows, int cols) : rows(rows), cols(cols) {
     // Dynamically allocate memory for the 2D array
     arr_ = new SquareType*[rows];
+    isAvailable = new bool*[rows];
     for (int i = 0; i < rows; ++i) {
         arr_[i] = new SquareType[cols];
+        isAvailable[i] = new bool[cols];
+        for (int j = 0; j < cols; ++j) {
+            isAvailable[i][j] = true; 
+        }
     }
 }
-
 // Destructor to free memory
 Board::~Board() {
     for (int i = 0; i < rows; ++i) {
@@ -46,6 +58,21 @@ SquareType Board::GetSquareValue(int row, int col){
 
 void Board::SetSquareValue(int row, int col, SquareType value){
     arr_[row][col] = value;
+}
+
+
+void Board::setAvailableSquares(){
+        for(int i = 0; i < rows; i++){
+        for(int j = 0; j < cols; j++){
+            if(isAvailable[i][j]){
+                availableSquares.push_back({i, j});
+            }
+        }
+    }
+}
+
+bool Board::isSquareAvailable(int row, int col) {
+    return isAvailable[row][col];
 }
 
 bool Board::notWall(int row, int col) {
@@ -102,7 +129,7 @@ vector<pair<int, int>> Board::PathToPosition(Player* p, int endRow, int endCol) 
         return a.second > b.second;
     };
 
-// The `decltype` keyword in C++ is used to determine the type of an expression at compile-time. It returns the type of the expression without actually evaluating it.
+    // The `decltype` keyword in C++ is used to determine the type of an expression at compile-time. It returns the type of the expression without actually evaluating it.
     priority_queue<pair<pair<int, int>, int>, vector<pair<pair<int, int>, int>>, decltype(compare)> pq(compare);
 
     // Pushing start position and distance
@@ -187,7 +214,20 @@ bool Board::MovePlayer(Player* p, int row, int col, vector<Player*> enemylist) {
     }
     return false;
 }
-
+// moves a player or enemey, any of type player, to a random location. This is for if an enemy dies or if a human player hits a trap
+bool Board::MovePlayerRandom(Player* p, vector<Player*> enemylist) {
+    if(availableSquares.empty()){
+        return false;
+    }
+    // Choose a random available square
+    int index = rand() % availableSquares.size();
+    pair<int, int> newPosition = availableSquares[index];
+    
+    // Move the player to the new position
+    p->SetPosition(newPosition.first, newPosition.second);
+    // returns true since the player was moved successfully
+    return true;
+}
 
 // Move an enemy to a new position on the board. Return true if they moved successfully, false otherwise.
 // could also have this use the same function as the player
@@ -293,8 +333,7 @@ bool Game::TakeTurn(Player *p){
         return false;
     }
 
-    // Move the player to the new position
-    board_->MovePlayer(p, move.first, move.second, players_);
+
     // Check if the player landed on a dot, if it has remove the dot from the board and add points 1
     SquareType landedPostion = board_->GetSquareValue(move.first, move.second);
     // switch staement to check what the player landed on
@@ -303,16 +342,61 @@ bool Game::TakeTurn(Player *p){
             dots_count_--;
             board_->SetSquareValue(move.first, move.second, SquareType::Empty);
             p->ChangePoints(1);
+            // Move the player to the new position
+            board_->MovePlayer(p, move.first, move.second, players_);
+            break;
+        case SquareType::Empty:
+            break;
+        case SquareType::Enemy:
+            if(p->hasTreasure()){
+                // the enemey has died if it does not have treasure
+                 for (auto& enemy : players_) {
+                    if (enemy->isHuman() == false) {
+                        // if the enemy is not human
+                        // move first is the x cordinate and move second is the y cordinate
+                        if (enemy->get_x_pos() == move.second && enemy->get_y_pos() == move.first && !enemy->hasTreasure()) {
+                            // if the enemy is not human and does not have treasure
+                            enemy->has_died();
+                            enemy->setLives(enemy->getLives() - 1);
+                            // need to call a respawn function
+                            // move the player to the same location it died at
+                        }
+                        else if(enemy->get_x_pos() == move.second && enemy->get_y_pos() == move.first && enemy->hasTreasure()){
+                            // if the enemy is not human and does have treasure
+                            // nothign should happen since they are both boosted by treasure
+                            enemy->setHasTreasure();
+                
+                            
+                        }      
+                    }
+                 }
+            }
+            //if the player does not have treasure they have died
+            else{
+                p->has_died();
+                p->setLives(p->getLives() - 1);
+                // need to call a respawn function
+                // move the player to the same location it died at
+
+                // Move the player to the new position
+                // board_->MovePlayer(p, move.first, move.second, players_);
+            }
             break;
         case SquareType::Treasure:
             p->setHasTreasure();
-            p->ChangePoints(100); 
+            p->ChangePoints(100);
+            // remove the treasure from the board
+            board_->SetSquareValue(move.first, move.second, SquareType::Empty);
+            // Move the player to the new position since it is valid
+            board_->MovePlayer(p, move.first, move.second, players_); 
             break;
         case SquareType::Trap:
             p->has_died();
             p->setLives(p->getLives() - 1);
+            // player has hit a trap so they are moved to a random location
             break;
-            
+        case SquareType::EnemySpecialTreasure:
+
         default:
             break;
     }
