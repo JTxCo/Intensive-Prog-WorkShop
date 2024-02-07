@@ -40,10 +40,12 @@ Board::Board(int rows, int cols) : rows(rows), cols(cols) {
         arr_[i] = new SquareType[cols];
         isAvailable[i] = new bool[cols];
         for (int j = 0; j < cols; ++j) {
-            isAvailable[i][j] = true; 
+            isAvailable[i][j] = true;
+            arr_[i][j] = SquareType::Empty; 
         }
     }
 }
+
 // Destructor to free memory
 Board::~Board() {
     for (int i = 0; i < rows; ++i) {
@@ -243,7 +245,11 @@ bool Board::MoveEnemy(Player* p, pair<int, int> pos) {
 
 
 // printing the board, this is so that the user can see the board and all in it
+bool Board::GenerateBoard(int row, int col){
+    // this will generate a board off of the given dimensions
+    
 
+}
 
 
 
@@ -625,22 +631,22 @@ std::ostream& operator<<(std::ostream& os, const Game &m) {
         for (int j = 0; j < m.board_->get_cols(); j++) {
             switch(m.board_->GetSquareValue(i, j)) {
                 case SquareType::Empty: 
-                    os << "⬛"; // Black large square
+                    os << "🪹"; // Empty Basket meaning nothing
                     break;
                 case SquareType::Wall: 
                     os << "🧱"; // Brick
                     break;
                 case SquareType::Dot:
-                    os << "⚫"; // Black circle
+                    os << "🍩"; // Donut for the dot
                     break;
                 case SquareType::Pacman:
                     os << "😃"; // Grinning face
                     break;
                 case SquareType::Treasure:
-                    os << "💰"; // Money bag
+                    os << "💰"; // Money bag 
                     break;
                 case SquareType::Enemy:
-                    os << "👾"; // Alien monster
+                    os << "👾"; // Alien monster aka the GHOST
                     break;
                 case SquareType::PowerUP:
                     os << "⭐"; // Star
@@ -649,7 +655,7 @@ std::ostream& operator<<(std::ostream& os, const Game &m) {
                     os << "⚠️"; // Warning
                     break;
                 case SquareType::EnemySpecialTreasure:
-                    os os << "👑"; // Crown
+                    os << "👑"; // Crown
                     break;
             }
         }

@@ -105,8 +105,11 @@ public:
 	bool MoveEnemy(Player *p, std::pair<int, int> pos);
 
 
+	// this will generate the board off of a given dimension
+	bool GenerateBoard(int row, int col);
 
 
+	
 	// // You probably want to implement this
 	friend std::ostream& operator<<(std::ostream& os, const Board &b);
 	// this will print the board to the console
