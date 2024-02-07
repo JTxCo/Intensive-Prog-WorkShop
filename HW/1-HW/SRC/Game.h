@@ -88,9 +88,9 @@ public:
 	bool MovePlayer(Player *p, int row, int col, vector<Player*> enemylist);
 	// this would just use the conventional int pair cordinates
 
-	bool MovePlayerRandom(Player *p, vector<Player*> enemylist);
+	bool MovePlayerRandom(Player *p);
 
-
+	
 
     // // Move an enemy to a new position on the board. Return
 	// // true if they moved successfully, false otherwise.
@@ -125,6 +125,7 @@ private:
 	std::vector<Player *> players_;
 	int turn_count_;
     int dots_count_;
+	int treasure_count_;
     bool GameOver;
 	// Array of enemies
 	vector<Player *> enemies_;
@@ -168,16 +169,23 @@ public:
 	// //have the enemy take turn
 	bool TakeTurnEnemy(Player *enemy);
 	// this will have the enemy take their turn
-	bool IsGameOver(Player *p);
+
+
+	// if the enemy is killed by a player with treasure then a new enemy will respawn at a random location
+	bool respawnEnemy();
+
+
 	// this will check if the game is over
+	bool IsGameOver(Player *p);
 	
 
-
-
-
-
 	// // return true if all pellets have been collected
-	bool CheckifdotsOver();
+	bool CheckifdotsOver(){
+		if(dots_count_ == 0){
+			return true;
+		}
+		return false;
+	};
 	// this will return true if all the dots have been collected
 	// return false if there are still dots on the board
 

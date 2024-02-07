@@ -24,6 +24,8 @@ public:
 		bool has_Treasure_ = false;
 		bool isDead_ = false;
 		int lives_ = 3;
+		int points_ = 0;
+		int movesTaken = 0;
 	public:
     	Player(string name, bool is_human, int x=0, int y=0) : // Added default values for x and y
         name(name), is_human(is_human), x_pos(x), y_pos(y) { } 
@@ -39,8 +41,11 @@ public:
 		int getLives() const {return lives_; }  
 		void setLives(int lives) {lives_ = lives; }  
 		void setHasTreasure() {has_Treasure_ = true; }  
-
-
+		void setLostTreasure() {has_Treasure_ = false; }
+		int getPoints() const {return points_; }
+		void setPoints(int points) {points_ = points; }
+		int getMovesTaken() const {return movesTaken; }
+		void increaseMovesTaken() {movesTaken++; }
 
 		// // TODO: implement the following functions
 		// // You MUST implement the following functions

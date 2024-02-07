@@ -215,7 +215,7 @@ bool Board::MovePlayer(Player* p, int row, int col, vector<Player*> enemylist) {
     return false;
 }
 // moves a player or enemey, any of type player, to a random location. This is for if an enemy dies or if a human player hits a trap
-bool Board::MovePlayerRandom(Player* p, vector<Player*> enemylist) {
+bool Board::MovePlayerRandom(Player* p) {
     if(availableSquares.empty()){
         return false;
     }
@@ -242,6 +242,7 @@ bool Board::MoveEnemy(Player* p, pair<int, int> pos) {
 }
 
 
+// printing the board, this is so that the user can see the board and all in it
 
 
 
@@ -249,7 +250,7 @@ bool Board::MoveEnemy(Player* p, pair<int, int> pos) {
 
 Game::Game() {
     // Create a new game
-    Board* board = new Board();
+    board_ = new Board();
     //setting variables
     turn_count_ = 0;
     dots_count_ = 0;
@@ -263,9 +264,12 @@ Game::Game() {
         players_.push_back(enemy);
     }
 }
+
+
+
 Game::Game(Player* human, const int enemies) {
     // Create a new game
-    Board* board = new Board();
+    board_ = new Board();
     //setting variables
     turn_count_ = 0;
     dots_count_ = 0;
@@ -292,8 +296,6 @@ Game::~Game() {
 
 pair<int,int> Game::PresentMoveOptions(Player *p){
     // Obtain the current position of the player
-    int currRow = p->get_y_pos();
-    int currCol = p->get_x_pos();
     pair<int, int> choosenMove = make_pair(-100, -100);
     // Check the adjacent positions for valid moves, will not allow to move into walls
     vector<pair<int, int>> positions = board_->GetPossibleMoves(p);
@@ -364,9 +366,9 @@ bool Game::TakeTurn(Player *p){
                         else if(enemy->get_x_pos() == move.second && enemy->get_y_pos() == move.first && enemy->hasTreasure()){
                             // if the enemy is not human and does have treasure
                             // nothign should happen since they are both boosted by treasure
-                            enemy->setHasTreasure();
-                
-                            
+                            // thus they loose their treasure
+                            enemy->setLostTreasure();
+                            p->setLostTreasure();
                         }      
                     }
                  }
@@ -382,6 +384,52 @@ bool Game::TakeTurn(Player *p){
                 // board_->MovePlayer(p, move.first, move.second, players_);
             }
             break;
+        case SquareType::Pacman:
+            // if the player lands on the pacman something has gone wrong since they are the same player
+            // if it is the enemy then the player has lost a life/died
+            if(p->isHuman()){
+                // Move the player to the new position
+                // don't move the player since for right now this is an error
+            }
+
+            // right now code below is unused because it is used in the case of the enemy landing on the player
+            // if i don't use it i need to make a function for moving the enemy and not have them in the same function
+
+            // else{
+            //     if(p->hasTreasure()&& enemy->hasTreasure()){
+            //         // if the enemy has treasure and the player has treasure then nothing happens
+            //         // the player looses their treasure
+            //         p->setLostTreasure();
+            //         enemy->setLostTreasure();
+            //     }
+            //     else if(p->hasTreasure()&&!enemy->hasTreasure()){
+            //         // if the enemy does not have treasure and the player does then the enemy has died
+            //         enemy->has_died();
+            //         enemy->setLives(enemy->getLives() - 1);
+            //         // need to call a respawn function
+            //         // move the player to the same location it died at
+            //     }
+            //     else if(!p->hasTreasure()&&enemy->hasTreasure()){
+            //         // if the enemy has treasure and the player does not then the player has died
+            //         p->has_died();
+            //         p->setLives(p->getLives() - 1);
+            //         // need to call a respawn function
+            //         // move the player to the same location it died at
+            //     }
+            //     else if(!p->hasTreasure()&&!enemy->hasTreasure()){
+            //         // if the enemy does not have treasure and the player does not then the player has died
+            //         p->has_died();
+            //         p->setLives(p->getLives() - 1);
+            //         // need to call a respawn function
+            //         // move the player to the same location it died at
+
+            //     }
+            //     p->has_died();
+            //     p->setLives(p->getLives() - 1);
+            //     // need to call a respawn function
+            //     // move the player to the same location it died at
+            // }
+
         case SquareType::Treasure:
             p->setHasTreasure();
             p->ChangePoints(100);
@@ -396,47 +444,219 @@ bool Game::TakeTurn(Player *p){
             // player has hit a trap so they are moved to a random location
             break;
         case SquareType::EnemySpecialTreasure:
-
+            // a human player has landed on the enemy special treasure
+            // this will do nothing for them
+            // if an enemy lands on it then they will gain treasure
+            if(p->isHuman()){
+                // THe player has gone to an invalid location for a player thus they can not go here
+                // board_->MovePlayer(p, move.first, move.second, players_);
+            }
+            else{
+                p->setHasTreasure();
+                // remove the treasure from the board
+                board_->SetSquareValue(move.first, move.second, SquareType::Empty);
+                // not moving the enemy in this function at this momment
+                // Move the player to the new position since it is valid
+                // board_->MovePlayer(p, move.first, move.second, players_);
+                // might need to use the move enemey function
+            }
+            break;
+        case SquareType::Wall:
+            // if the player lands on a wall then they are not moved
+            // this is an invalid move
+            // an error has occured
+            break;
         default:
             break;
     }
 
+    // Check if the player has won
+    if (dots_count_ == 0){
+        GameOver = true;
+        return true;
+    }
+    //returning false since game is not over
+    return false;
+}
 
 
 
+bool Game::respawnEnemy(){
+    // enemy died so now a new enemy must be spawned at a random location
+    Player* enemy = new Player("Enemy", false);
+    enemies_.push_back(enemy);
+    // Move the player to the new random position
+    bool moved = board_->MovePlayerRandom(enemy);
+    if(moved){
+        // if the player was moved successfully then the player has respawned
+        return true;
+    }
+        // if the player was not moved successfully then the player has not respawned
+    return false;
+}
 
-    // Check if the player landed on the treasure, if they have set the treasure flag and add points 100
-    // if (board_->GetSquareValue(row, col) == SquareType::Treasure) {
-    //     p->setHasTreasure();
-    //     p->ChangePoints(100);
-    // }
-    // Check if the player landed on an enemy
-    for (auto& enemy : players_) {
-        if (enemy->isHuman() == false) {
-            if (enemy->get_x_pos() == col && enemy->get_y_pos() == row) {
-                p->has_died();
-                p->setLives(p->getLives() - 1);
-                // need to call a respawn function
-                // move the player to the same location it died at
+
+bool Game::IsGameOver(Player *p){
+    // Check if the player has lost all their lives
+    if (p->getLives() <= 0){
+        GameOver = true;
+        return true;
+    }
+    else if(GameOver){
+        return true;
+    }
+    else if(dots_count_ == 0&&treasure_count_ == 0){
+        GameOver = true;
+        return true;
+    }
+    return false;
+}
+
+bool Game::TakeTurnEnemy(Player*enemy){
+    // this will use the same structure as the take turn for player function but is based on the enemy
+    // the enemey will use the path to position function to find the shortest path to the player
+    // then it will move to that position as quick as possible
+    // if the enemy lands on the player then the player will loose a life
+
+
+    // Getting the current position of the player
+    // since the only player is pacman, in the player list at this time the first player is the human player
+    int player_row = players_[0]->get_y_pos();
+    int player_col = players_[0]->get_x_pos();
+    Player* target_player = players_[0];
+    // find the shortest path to the player
+    // this takes in the enemy player and the position of the player it is trying to get to
+    // If there are 2 players, pacmen, then i could compare who is closer and then move to that player
+    vector<pair<int, int>> path = board_->PathToPosition(enemy, player_row, player_col);
+
+    // Move the enemy to the new position
+    pair<int, int> enemey_move = path[1];
+    // Check to see if the landed on a valid position
+    // if the enemy was moved to a valid spot then it returns true
+    switch(board_->GetSquareValue(enemey_move.first, enemey_move.second)){
+        case SquareType::Dot:
+            // The enemy does not pick up the dot
+            // Move the player to the new position
+            return board_->MoveEnemy(enemy, enemey_move);
+            break;
+        case SquareType::Empty:
+            // Move the player to the new position
+            return board_->MoveEnemy(enemy, enemey_move);
+            break;
+        case SquareType::Enemy:
+            // if the enemy lands on another enemy then they do not move
+            return true;
+            break;
+        case SquareType::Pacman:
+            // if the player lands on the pacman something has gone wrong since they are the same player
+            // if it is the enemy then the player has lost a life/died
+
+                if(target_player->hasTreasure()&& enemy->hasTreasure()){
+                    // if the enemy has treasure and the player has treasure then nothing happens
+                    // the player looses their treasure
+                    target_player->setLostTreasure();
+                    enemy->setLostTreasure();
+                    return true;
+                }
+                else if(target_player->hasTreasure()&&!enemy->hasTreasure()){
+                    // if the enemy does not have treasure and the taget player does then the enemy has died
+                    // the enemy will respan at a random location
+                    enemy->has_died();
+                    respawnEnemy(); 
+                    // need to call a respawn function
+                    // move the player to the same location it died at
+                    return true;
+                }
+                else if((!target_player->hasTreasure() && !enemy->hasTreasure() )|| (!target_player->hasTreasure()&&enemy->hasTreasure())){
+                    // if the enemy has treasure and the player does not then the player has died
+                    target_player->has_died();
+                    target_player->setLives(target_player->getLives() - 1);
+                    if(target_player->getLives() <= 0){
+                        IsGameOver(target_player);
+                    }
+                    return true;
+                }
+                else{
+                    // something has gone wrong here
+                    return false;
+                }
+            break;
+        case SquareType::Treasure:
+            // the enemy does not pick up the treasure
+            // Move the player to the new position
+            return board_->MoveEnemy(enemy, enemey_move);
+            break;
+        default:
+            return false;
+            break;
+    }
+}
+
+
+
+string Game::GenerateReport(Player *p){
+    // this will generate a report about the game's conditions after it is over
+    // this will take in the player and return a string
+    // this will also take into account the other players and what has all happened during the game
+    string report = "Player: " + p->get_name() + " has " + std::to_string(p->getPoints()) + " points.\n";
+    report +="There are " + std::to_string(dots_count_) + " dots left and there are: " + std::to_string(treasure_count_) + " treasures left.\n ";
+    report +="Player has taken: " + std::to_string(p->getMovesTaken()) + " moves.\n";
+    if(p->getLives() <= 0){
+        report = "Game Over: ";
+        report += "You have lost all your lives. ";
+    }
+    else if(dots_count_ == 0){
+        report += "You have won the game. ";
+    }
+    else if(GameOver){
+        report += "The game is over. ";
+    }
+    return report;
+}
+
+std::ostream& operator<<(std::ostream& os, const Game &m) {
+    os << "Game: \n";
+    os << "Players: \n";
+    for (auto& player : m.players_) {
+        os << "Name: " << player->get_name() << ", Points: " << player->getPoints() << ", Lives: " << player->getLives() << "\n";
+    }
+    os << "Board: \n";
+    for (int i = 0; i < m.board_->get_rows(); i++) {
+        for (int j = 0; j < m.board_->get_cols(); j++) {
+            switch(m.board_->GetSquareValue(i, j)) {
+                case SquareType::Empty: 
+                    os << "⬛"; // Black large square
+                    break;
+                case SquareType::Wall: 
+                    os << "🧱"; // Brick
+                    break;
+                case SquareType::Dot:
+                    os << "⚫"; // Black circle
+                    break;
+                case SquareType::Pacman:
+                    os << "😃"; // Grinning face
+                    break;
+                case SquareType::Treasure:
+                    os << "💰"; // Money bag
+                    break;
+                case SquareType::Enemy:
+                    os << "👾"; // Alien monster
+                    break;
+                case SquareType::PowerUP:
+                    os << "⭐"; // Star
+                    break;
+                case SquareType::Trap:
+                    os << "⚠️"; // Warning
+                    break;
+                case SquareType::EnemySpecialTreasure:
+                    os os << "👑"; // Crown
+                    break;
             }
         }
+        os << "\n";
     }
-
-    // Check if the player landed on the enemy special treasure
-    if (board_->GetSquareValue(row, col) == SquareType::EnemySpecialTreasure) {
-        // Move the player to a random position
-        int randomRow = rand() % board_->rows;
-        int randomCol = rand() % board_->cols;
-        board_->MovePlayer(p, randomRow, randomCol, players_);
-    }
-    // Check if the player landed on a trap
-    if (board_->GetSquareValue(row, col) == SquareType::Trap) {
-        p->has_died();
-        p->setLives(p->getLives() - 1);
-    }
-    // Check if the player has won
-    if (dots_count_ == 0)
-
-
+    return os;
 }
+
+
 
