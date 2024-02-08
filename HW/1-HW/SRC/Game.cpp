@@ -16,42 +16,59 @@ using std::endl;
 using std::cin;
 using std::regex;
 
-Board::Board() : rows(10), cols(10) { // Set default size of board to 10x10
+Board::Board() : rows_(12), cols_(12) { // Set default size of board to 12x12
     // Dynamically allocate memory for the 2D array
     // Initialize all positions as available, this might change later based on how the board set up is done later
-    arr_ = new SquareType*[rows];
-    isAvailable = new bool*[rows];
-    for (int i = 0; i < rows; ++i) {
-        arr_[i] = new SquareType[cols];
-        isAvailable[i] = new bool[cols];
-        for (int j = 0; j < cols; ++j) {
+    arr_ = new SquareType*[rows_];
+    isAvailable = new bool*[rows_];
+    for (int i = 0; i < rows_; ++i) {
+        arr_[i] = new SquareType[cols_];
+        isAvailable[i] = new bool[cols_];
+        for (int j = 0; j < cols_; ++j) {
             isAvailable[i][j] = true; 
         }
+    }
+    if(GenerateBoard(rows_, cols_)){
+        setAvailableSquares();
+    }
+    else{
+        cout << "Board was not generated correctly" << endl;
     }
 }
 
 // Custom constructor to set rows and cols
 // Initialize all positions as available, this might change later 
-Board::Board(int rows, int cols) : rows(rows), cols(cols) {
+Board::Board(int rows, int cols) : rows_(rows + 2), cols_(cols + 2){
+    // the plus 2 here is meant so that i can add a wall border around the matrix so that it can't go out of the border
     // Dynamically allocate memory for the 2D array
-    arr_ = new SquareType*[rows];
-    isAvailable = new bool*[rows];
-    for (int i = 0; i < rows; ++i) {
-        arr_[i] = new SquareType[cols];
-        isAvailable[i] = new bool[cols];
-        for (int j = 0; j < cols; ++j) {
+    arr_ = new SquareType*[rows_];
+    isAvailable = new bool*[rows_];
+    for (int i = 0; i < rows_; ++i) {
+        arr_[i] = new SquareType[cols_];
+        isAvailable[i] = new bool[cols_];
+        for (int j = 0; j < cols_; ++j) {
             isAvailable[i][j] = true;
             arr_[i][j] = SquareType::Empty; 
         }
     }
+    if(GenerateBoard(rows_, cols_)){
+        setAvailableSquares();
+    }
+    else{
+        cout << "Board was not generated correctly" << endl;
+    }  
 }
 
 // Destructor to free memory
 Board::~Board() {
-    for (int i = 0; i < rows; ++i) {
+    for (int i = 0; i < rows_; ++i) {
         delete[] arr_[i];
     }
     delete[] arr_;
+    for(auto i = 0; i < rows_; i++){
+        delete[] isAvailable[i];
+    }
+    delete[] isAvailable;
 }
 
 SquareType Board::GetSquareValue(int row, int col){
@@ -64,8 +81,8 @@ void Board::SetSquareValue(int row, int col, SquareType value){
 
 
 void Board::setAvailableSquares(){
-        for(int i = 0; i < rows; i++){
-        for(int j = 0; j < cols; j++){
+        for(int i = 0; i < rows_; i++){
+        for(int j = 0; j < cols_; j++){
             if(isAvailable[i][j]){
                 availableSquares.push_back({i, j});
             }
@@ -78,17 +95,16 @@ bool Board::isSquareAvailable(int row, int col) {
 }
 
 bool Board::notWall(int row, int col) {
-    // Accessing GetSquareValue function result
-    SquareType square = arr_[row][col];
-    if (square == SquareType::Wall) {
+    SquareType square = GetSquareValue(row, col);
+    if (square == SquareType::Wall){
         return false;
     }
     return true;
 }
-vector<pair<int, int>> Board::GetPossibleMoves(Player* p) {
+vector<pair<int, int>> Board::GetPossibleMoves(int currRow, int currCol) {
     // Obtain the current position of the player
-    int currRow = p->get_y_pos();
-    int currCol = p->get_x_pos();
+    // int currRow = p->get_y_pos(); redid the function from  an input of a player p
+    // int currCol = p->get_x_pos();
 
     vector<pair<int, int>> positions;
 
@@ -96,13 +112,13 @@ vector<pair<int, int>> Board::GetPossibleMoves(Player* p) {
     if (currRow - 1 >= 0)
         positions.push_back(make_pair(currRow - 1, currCol));
 
-    if (currRow + 1 < rows)
+    if (currRow + 1 < rows_)
         positions.push_back(make_pair(currRow + 1, currCol));
 
     if (currCol - 1 >= 0)
         positions.push_back(make_pair(currRow, currCol - 1));
 
-    if (currCol + 1 < cols)
+    if (currCol + 1 < cols_)
         positions.push_back(make_pair(currRow, currCol + 1));
 
     return positions;
@@ -113,15 +129,15 @@ vector<pair<int, int>> Board::GetPossibleMoves(Player* p) {
 vector<pair<int, int>> Board::PathToPosition(Player* p, int endRow, int endCol) {
     int startRow = p->get_y_pos();
     int startCol = p->get_x_pos();
-    int n = rows;
+    int n = rows_;
 
     // uint's used to avoid negative values, adjust accordingly.
     const unsigned int INF = (unsigned int)-1;
 
     // Create 2D vector for visited status and distances
-    vector<vector<bool>> visited(n, vector<bool>(rows, false));
-    vector<vector<int>> dist(n, vector<int>(rows, INF));
-    vector<vector<pair<int, int>>> prev(n, vector<pair<int, int>>(rows, make_pair(-1, -1)));
+    vector<vector<bool>> visited(n, vector<bool>(rows_, false));
+    vector<vector<int>> dist(n, vector<int>(rows_, INF));
+    vector<vector<pair<int, int>>> prev(n, vector<pair<int, int>>(rows_, make_pair(-1, -1)));
 
     // Setting the distance from start to start as 0
     dist[startRow][startCol] = 0;
@@ -161,8 +177,7 @@ vector<pair<int, int>> Board::PathToPosition(Player* p, int endRow, int endCol) 
         visited[currentRow][currentCol] = true;
 
         // Get all valid adjacent positions
-        // Modify this as needed based on the rules of your game
-        vector<pair<int, int>> neighbors = GetPossibleMoves(p);
+        vector<pair<int, int>> neighbors = GetPossibleMoves(p->get_x_pos(), p->get_y_pos());
 
         for (auto& neighbor : neighbors) {
             int neighborRow = neighbor.first;
@@ -247,9 +262,9 @@ bool Board::MoveEnemy(Player* p, pair<int, int> pos) {
 
 bool Board::generateBorder(){
     // i am going to put walls on the border of the board so that the player/enemies can't go out
-    for(int i = 0; i < rows; i++){
-        for(int j = 0; j < cols; j++){
-            if(i == 0 || i == rows-1 || j == 0 || j == cols-1){
+    for(int i = 0; i < rows_; i++){
+        for(int j = 0; j < cols_; j++){
+            if(i == 0 || i == rows_-1 || j == 0 || j == cols_-1){
                 arr_[i][j] = SquareType::Wall;
                 isAvailable[i][j] = false;
             }
@@ -258,14 +273,33 @@ bool Board::generateBorder(){
     return true;
 }
 
+// function to fill in the values: dots, treasure, walls=, and traps
+bool Board::fillInBoard(){
+    // need to randomly assign the dots and the treasure while also putting down walls, but in a way that they don't over do it 
+    // vector<pair<int, int>> availableSquares = GetPossibleMoves();
+
+
+
+}
+
+
 // printing the board, this is so that the user can see the board and all in it
 bool Board::GenerateBoard(int row, int col){
     // this will generate a board off of the given dimensions
     // this will also set the walls and the available squares
-    rows = row;
-    cols = col;
+    rows_ = row;
+    cols_ = col;
     // this is setting the Boards rows and cols to the given rows and cols
 
+
+    // wall border has been added
+    // need to set the available squares
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            arr_[i][j] = SquareType::Dot;
+            isAvailable[i][j] = true;
+        }
+    }
     if(generateBorder()){
         // if the border was generated successfully
         setAvailableSquares();
@@ -274,13 +308,7 @@ bool Board::GenerateBoard(int row, int col){
     else{
         return false;
     }
-    // wall border has been added
-    // need to set the available squares
-    
-
 }
-
-
 
 
 Game::Game() {
@@ -291,30 +319,31 @@ Game::Game() {
     dots_count_ = 0;
     GameOver = false;
     // Create a new player
-    Player* human = new Player("Human", true);
+    Player* human = new Player("Human", true); 
     players_.push_back(human);
     // Create new enemies
     for (int i = 0; i < 2; i++) {
         Player* enemy = new Player("Enemy", false);
-        players_.push_back(enemy);
+        enemies_.push_back(enemy);
     }
 }
 
 
 
-Game::Game(Player* human, const int enemies) {
+Game::Game(int row, int col, int enemies_count) {
     // Create a new game
-    board_ = new Board();
+    board_ = new Board(row, col);
     //setting variables
     turn_count_ = 0;
     dots_count_ = 0;
     GameOver = false;
     // Create a new player
+    Player* human = new Player("Human", true);
     players_.push_back(human);
     // Create new enemies
-    for (int i = 0; i < enemies; i++) {
+    for (int i = 0; i < enemies_count; i++) {
         Player* enemy = new Player("Enemy", false);
-        players_.push_back(enemy);
+        enemies_.push_back(enemy);
     }
 }
 
@@ -323,6 +352,9 @@ Game::~Game() {
     delete board_;
     for (auto& player : players_) {
         delete player;
+    }
+    for(auto& enemy : enemies_){
+        delete enemy;
     }
 }
 
@@ -333,7 +365,7 @@ pair<int,int> Game::PresentMoveOptions(Player *p){
     // Obtain the current position of the player
     pair<int, int> choosenMove = make_pair(-100, -100);
     // Check the adjacent positions for valid moves, will not allow to move into walls
-    vector<pair<int, int>> positions = board_->GetPossibleMoves(p);
+    vector<pair<int, int>> positions = board_->GetPossibleMoves(p->get_x_pos(), p->get_y_pos());
     // Present the options to the player
     cout << "Possible moves: " << endl;
     for (int i = 0; i < positions.size(); i++) {
@@ -693,5 +725,16 @@ std::ostream& operator<<(std::ostream& os, const Game &m) {
     return os;
 }
 
+bool Game::visitEveryDot_Treasure(){
+    // this function is used to see what the minimum moves are to get to every dot and treasure on the board
+    // this is used as a comparison for how long the game could take
 
+    // first build a matrix that finds the shortest path from the startring position to every dot and treasure
+    // this is entirely for testing. Make sure to change for finding every value
+    int distance = board_->PathToPosition(players_[0], 2,2).size();
+    if(distance == 0){
+        return false;
+    }
+    return true;
+}
 

@@ -7,6 +7,7 @@
 #include "Player.h"
 using std::vector;
 using std::pair;
+
 // you may change this enum as you need
 enum class SquareType { Wall, Dot, Pacman, Treasure, Enemy, Empty, PowerUP, Trap, EnemySpecialTreasure };
 
@@ -15,15 +16,15 @@ std::string SquareTypeStringify(SquareType sq);
 
 class Board {
 private:
-	int rows; // might be convenient but not necessary
-	int cols;
+	int rows_; // might be convenient but not necessary
+	int cols_;
 	SquareType **arr_;//this is how the board is stored, this is based on the default constructor
 	// if you want to set to another size then this will be set based on the input
 	// SquareType arr_[rows][cols];
 	bool **isAvailable;
 	vector<pair<int, int>> availableSquares;
 	// this is the amount of rows and columns in the board
-
+	int moveMin;//this is the minimum amount of moves that the player can make in order to get every dot and every treasure
 	// you may add more fields, as needed
 public:
 	// // TODO: implement
@@ -34,9 +35,9 @@ public:
 	vector<pair<int, int>> PathToPosition(Player *p, int row, int col);
 
 	// // already implemented in line
-	int get_rows() const {return 10; }  // you should be able to change the size of your
+	int get_rows() const {return rows_; }  // you should be able to change the size of your
 	// default board by changing these numbers and the numbers in the arr_ field
-	int get_cols() const {return 10; }  // board by changing these numbers and the numbers in the arr_ field
+	int get_cols() const {return cols_; }  // board by changing these numbers and the numbers in the arr_ field
 	SquareType** get_arr() const {return arr_; }  // board by changing these numbers and the numbers in the arr_ field
 
 	// // TODO: you MUST implement the following functions
@@ -54,11 +55,11 @@ public:
 	// this will use the row n
 
 	void setAvailableSquares();
-
+	bool **getAvailableSquares() const {return isAvailable; }
 	// // get the possible Positions that a Player/Enemy could move to
 	// // (not off the board or into a wall)
 	// std::vector<Position> GetMoves(Player *p);
-	vector<pair<int, int>> GetPossibleMoves(Player *p);
+	vector<pair<int, int>> GetPossibleMoves(int currRow, int currCol);
 	// this will return a vector of possible positions that a player can move to
 	// this will be based on the current position of the player and the board
 	// this will also take into account the walls and the other players
@@ -104,9 +105,15 @@ public:
 	// if i rewrite this i would have:
 	bool MoveEnemy(Player *p, std::pair<int, int> pos);
 
+
+	// this generates a border around it so that the player cannot move off the board
 	bool generateBorder();
 	// this will generate the board off of a given dimension
 	bool GenerateBoard(int row, int col);
+
+
+	// function to fill in the walls and other stuff
+	bool fillInBoard();
 
 
 	
@@ -136,19 +143,13 @@ private:
 public:
 	// TODO: implement these functions
 	Game(); // constructor
-	// seems like this would not get used often so i would probably not implement this
-
-
-
-	// // initialize a new game, given one human player and
+		// // initialize a new game, given one human player and
 	// // a number of enemies to generate
-	Game(Player *human, const int enemies);
-	// this will initialize a new game
-	// this will take in a human player and a list of enemies
-	// i think that it might be better to not pass in the list of enemies because they wouldn't be generated yet
-	// this will also take in the number of enemies to generate
-	// and return the list of hte enemies generated
-
+	Game(int row, int col, const int enemies);
+	// seems like this would not get used often so i would probably not implement this
+	Board* getBoard() const {return board_; }  // this will return the board
+	vector<Player*> getPlayers() const {return players_; }  // this will return the players
+	vector<Player*> getEnemies() const {return enemies_; }  // this will return the enemies
 	// free memory
 	~Game();
 
@@ -156,7 +157,8 @@ public:
 	//for the player this will display the available options and then take the input
 	pair<int,int> PresentMoveOptions(Player *p);
 
-
+	// this function is used to visit every dot and treasure on the board and count how mnay that is to see if the game is over
+	bool visitEveryDot_Treasure();
 
 
 	// // have the given Player take their turn

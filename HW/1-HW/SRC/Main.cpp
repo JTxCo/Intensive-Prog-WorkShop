@@ -8,7 +8,5 @@ int main() {
     // Create a new game
     Game game;
     // Run the game
-    Player *human = new Player("Human", true);
-    Board *board = new Board();
-    cout << "Game Over: "  << endl;
+
 }
