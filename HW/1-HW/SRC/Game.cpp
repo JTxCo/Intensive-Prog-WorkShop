@@ -518,18 +518,23 @@ bool Game::TakeTurn(Player *p){
 
     // Check if the player landed on a dot, if it has remove the dot from the board and add points 1
     SquareType landedPostion = board_->GetSquareValue(move.first, move.second);
+    
     // switch staement to check what the player landed on
     switch(landedPostion){
         case SquareType::Dot:
+            cout<<"Landed on a dot"<<endl;
             dots_count_--;
             board_->SetSquareValue(move.first, move.second, SquareType::Empty);
             p->ChangePoints(1);
             // Move the player to the new position
             board_->MovePlayer(p, move.first, move.second, players_);
+            UpdatePlayerData(p, move.first, move.second);
             break;
         case SquareType::Empty:
+            cout<<"Landed on an empty square"<<endl;
             break;
         case SquareType::Enemy:
+            cout<<"Landed on an enemy"<<endl;
             if(p->hasTreasure()){
                 // the enemey has died if it does not have treasure
                  for (auto& enemy : players_) {
@@ -565,6 +570,7 @@ bool Game::TakeTurn(Player *p){
             }
             break;
         case SquareType::Pacman:
+            cout<<"Landed on a pacman"<<endl;
             // if the player lands on the pacman something has gone wrong since they are the same player
             // if it is the enemy then the player has lost a life/died
             if(p->isHuman()){
@@ -611,6 +617,7 @@ bool Game::TakeTurn(Player *p){
             // }
 
         case SquareType::Treasure:
+            cout<<"Landed on a treasure"<<endl;
             p->setHasTreasure();
             p->ChangePoints(100);
             // remove the treasure from the board
@@ -619,17 +626,20 @@ bool Game::TakeTurn(Player *p){
             board_->MovePlayer(p, move.first, move.second, players_); 
             break;
         case SquareType::Trap:
+            cout<<"Landed on a trap"<<endl;
             p->has_died();
             p->setLives(p->getLives() - 1);
             // player has hit a trap so they are moved to a random location
             break;
         case SquareType::EnemySpecialTreasure:
+            cout<<"Landed on an enemy special treasure"<<endl;
             // a human player has landed on the enemy special treasure
             // this will do nothing for them
             // if an enemy lands on it then they will gain treasure
             if(p->isHuman()){
                 // THe player has gone to an invalid location for a player thus they can not go here
                 // board_->MovePlayer(p, move.first, move.second, players_);
+                cout<<"landed on enemy treasure as a human so nothing happens"<<endl;
             }
             else{
                 p->setHasTreasure();
@@ -642,6 +652,7 @@ bool Game::TakeTurn(Player *p){
             }
             break;
         case SquareType::Wall:
+            cout<<"Landed on a wall"<<endl;
             // if the player lands on a wall then they are not moved
             // this is an invalid move
             // an error has occured
@@ -781,16 +792,16 @@ void Game::playGame(){
     DisplayGame();
     cout<<"Player's turn\n "<<endl;
     cout<<"What does the player want to do? "<<endl;
-    pair<int, int> move = PresentMoveOptions(players_[0]); 
-    if(move.first == -100 && move.second == -100){
-        cout<<"Player has chosen to not move"<<endl;
-    }
-    else{
-        cout<<"Player has chosen to move to: "<<move.first<<", "<<move.second<<endl;
-    }
-    cout<<"Player has chosen to move to: "<<move.first<<", "<<move.second<<endl;
-    UpdatePlayerData(players_[0], move.first, move.second);
-    // player data is updated confirmation:
+    // pair<int, int> move = PresentMoveOptions(players_[0]); 
+    // if(move.first == -100 && move.second == -100){
+    //     cout<<"Player has chosen to not move"<<endl;
+    // }
+    // else{
+    //     cout<<"Player has chosen to move to: "<<move.first<<", "<<move.second<<endl;
+    // }
+    // cout<<"Player has chosen to move to: "<<move.first<<", "<<move.second<<endl;
+    // UpdatePlayerData(players_[0], move.first, move.second);
+    // // player data is updated confirmation:
     TakeTurn(players_[0]);
     cout<<"Player's data: "<<players_[0]->get_name()<<endl;
     cout<<"Player's points: "<<players_[0]->getPoints()<<endl;
