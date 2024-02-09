@@ -111,23 +111,28 @@ vector<pair<int, int>> Board::GetPossibleMoves(int currRow, int currCol) {
     // Obtain the current position of the player
     // int currRow = p->get_y_pos(); redid the function from  an input of a player p
     // int currCol = p->get_x_pos();
-
+    cout<<"currRow: "<<currRow<<endl;
+    cout<<"currCol: "<<currCol<<endl;
     vector<pair<int, int>> positions;
 
-    // Check the adjacent positions for valid moves, without considering walls
-    if (currRow - 1 >= 0)
+    // Check the adjacent positions for valid moves, making sure the space is available and not a wall
+    if (currRow - 1 >= 0&& currRow - 1 < rows_ && currCol >= 0 && currCol < cols_&&isSquareAvailable(currRow - 1, currCol))
+        // Up
         positions.push_back(make_pair(currRow - 1, currCol));
-
-    if (currRow + 1 < rows_)
+    if (currRow + 1 < rows_ && currRow + 1 >= 0 && currCol >= 0 && currCol < cols_&&isSquareAvailable(currRow + 1, currCol))
+        // Down
+        
         positions.push_back(make_pair(currRow + 1, currCol));
 
-    if (currCol - 1 >= 0)
+    if (currCol - 1 >= 0 && currCol - 1 < cols_ && currRow >= 0 && currRow < rows_&&isSquareAvailable(currRow, currCol - 1))
+        // Left
         positions.push_back(make_pair(currRow, currCol - 1));
 
-    if (currCol + 1 < cols_)
+    if (currCol + 1 < cols_&& currCol + 1 >= 0 && currRow >= 0 && currRow < rows_&&isSquareAvailable(currRow, currCol + 1))
+        // Right
         positions.push_back(make_pair(currRow, currCol + 1));
-
     return positions;
+
 }
 
 
@@ -407,8 +412,9 @@ Game::Game() {
     players_.push_back(human);
     // Create new enemies
     for (int i = 0; i < 2; i++) {
-        Player* enemy = new Player("Enemy", false);
-        enemies_.push_back(enemy);
+        // this function randomly puts the enemies on the board
+        // it is also used when enemies are killed
+        respawnEnemy();
     }
     // set the game data since that will be created by the Board and now we are ready to play
     setGameData();
@@ -461,6 +467,11 @@ bool Game::setGameData(){
     if(!setTurnCount(0)){
         return false;
     }
+    // putting the players and enemies on the board
+    // player
+    board_->SetSquareValue(1, 1, SquareType::Pacman);
+    
+
     return true;
 }
 
@@ -472,10 +483,26 @@ pair<int,int> Game::PresentMoveOptions(Player *p){
     pair<int, int> chosenMove = make_pair(-100, -100);
     // Check the adjacent positions for valid moves, will not allow to move into walls
     vector<pair<int, int>> positions = board_->GetPossibleMoves(p->get_x_pos(), p->get_y_pos());
+    // Printing the available moves testing
     // Present the options to the player
     cout << "Possible moves: " << endl;
     for (int i = 0; i < positions.size(); i++) {
-        cout << i << ": " << positions[i].first << ", " << positions[i].second << endl;
+        int player_x = p->get_x_pos();
+        int player_y = p->get_y_pos();
+        // printing the available moves but with up down left right
+        // each if statement is checking how the position is oriantated based on the current position
+        if(positions[i].first == player_y - 1 && positions[i].second == player_x){
+            cout << i << ": " << "Up" << endl;
+        }
+        else if(positions[i].first == player_y + 1 && positions[i].second == player_x){
+            cout << i << ": " << "Down" << endl;
+        }
+        else if(positions[i].first == player_y && positions[i].second == player_x - 1){
+            cout << i << ": " << "Left" << endl;
+        }
+        else if(positions[i].first == player_y && positions[i].second == player_x + 1){
+            cout << i << ": " << "Right" << endl;
+        }
     }
     // Take the input from the player
     std::regex coordinate_pattern("\\((\\d+),(\\d+)\\)");
@@ -510,11 +537,13 @@ bool Game::TakeTurn(Player *p){
     // int row = p->get_y_pos();
     // int col = p->get_x_pos();
     // get the choice of move from the player
+    cout<<"x cur row is: "<<p->get_x_pos()<<endl;
+    cout<<"y cur col is: "<<p->get_y_pos()<<endl;
     pair<int, int> move = PresentMoveOptions(p);
     if (move==make_pair(-100, -100)) {
         return false;
     }
-
+    
 
     // Check if the player landed on a dot, if it has remove the dot from the board and add points 1
     SquareType landedPostion = board_->GetSquareValue(move.first, move.second);
@@ -524,8 +553,9 @@ bool Game::TakeTurn(Player *p){
         case SquareType::Dot:
             cout<<"Landed on a dot"<<endl;
             dots_count_--;
+            // update player score
+            p->increasePoints(1);
             board_->SetSquareValue(move.first, move.second, SquareType::Empty);
-            p->ChangePoints(1);
             // Move the player to the new position
             board_->MovePlayer(p, move.first, move.second, players_);
             UpdatePlayerData(p, move.first, move.second);
@@ -619,7 +649,7 @@ bool Game::TakeTurn(Player *p){
         case SquareType::Treasure:
             cout<<"Landed on a treasure"<<endl;
             p->setHasTreasure();
-            p->ChangePoints(100);
+            p->increasePoints(100);
             // remove the treasure from the board
             board_->SetSquareValue(move.first, move.second, SquareType::Empty);
             // Move the player to the new position since it is valid
@@ -678,6 +708,7 @@ bool Game::respawnEnemy(){
     enemies_.push_back(enemy);
     // Move the player to the new random position
     bool moved = board_->MovePlayerRandom(enemy);
+    board_->SetSquareValue(enemy->get_y_pos(), enemy->get_x_pos(), SquareType::Enemy);
     if(moved){
         // if the player was moved successfully then the player has respawned
         return true;
@@ -784,31 +815,23 @@ bool Game::TakeTurnEnemy(Player*enemy){
 }
 
 void Game::playGame(){
-    DisplayGame();
     // this will be the main function that will be used to play the game
     // It will be repeated many times
     // set Pacman location to 1,1
-    board_->SetSquareValue(1, 1, SquareType::Pacman);
+    
+    // need to set the players location to 1,1
+    
     DisplayGame();
     cout<<"Player's turn\n "<<endl;
     cout<<"What does the player want to do? "<<endl;
-    // pair<int, int> move = PresentMoveOptions(players_[0]); 
-    // if(move.first == -100 && move.second == -100){
-    //     cout<<"Player has chosen to not move"<<endl;
-    // }
-    // else{
-    //     cout<<"Player has chosen to move to: "<<move.first<<", "<<move.second<<endl;
-    // }
-    // cout<<"Player has chosen to move to: "<<move.first<<", "<<move.second<<endl;
-    // UpdatePlayerData(players_[0], move.first, move.second);
-    // // player data is updated confirmation:
     TakeTurn(players_[0]);
-    cout<<"Player's data: "<<players_[0]->get_name()<<endl;
-    cout<<"Player's points: "<<players_[0]->getPoints()<<endl;
-    cout<<"Player's lives: "<<players_[0]->getLives()<<endl;
-    cout<<"Player's moves taken: "<<players_[0]->getMovesTaken()<<endl;
-    cout<<"Player is at: "<<players_[0]->get_x_pos()<<", "<<players_[0]->get_y_pos()<<endl;
+    cout<< GenerateReport(players_[0]);
+    // enemies go
+    TakeTurnEnemy(enemies_[0]);
 }
+
+
+
 
 
 string Game::GenerateReport(Player *p){

@@ -164,6 +164,8 @@ public:
 	vector<Player*> getEnemies() const {return enemies_; }  // this will return the enemies
 	// free memory
 	~Game();
+	// this function sets the player, pacman, and the enemies
+	// it also sets the game conifguration
 	bool setGameData();
 	bool setTurnCount(int turn_count){
 		turn_count_ = turn_count;

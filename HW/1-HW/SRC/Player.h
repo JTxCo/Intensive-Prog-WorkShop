@@ -27,7 +27,7 @@ public:
 		int points_ = 0;
 		int movesTaken = 0;
 	public:
-    	Player(string name, bool is_human, int x=0, int y=0) : // Added default values for x and y
+    	Player(string name, bool is_human, int x=1, int y=1) : // Added default values for x and y
         name(name), is_human(is_human), x_pos(x), y_pos(y) { } 
 	// these are just a bunch of getters for the player class
 		string get_name() const {return name;}  
@@ -44,16 +44,14 @@ public:
 		void setLostTreasure() {has_Treasure_ = false; }
 		int getPoints() const {return points_; }
 		void setPoints(int points) {points_ = points; }
+		void increasePoints(int points) {points_ += points; }
 		void setMovesTaken(int moves) {movesTaken = moves; }
 		int getMovesTaken() const {return movesTaken; }
 		void increaseMovesTaken() {movesTaken++; }
 
 		// // TODO: implement the following functions
 		// // You MUST implement the following functions
-		void ChangePoints(const int x){
-			x_pos += x;
-			y_pos += x;
-		}
+
 		// // this will change the points of the player by the value of x
 		// to me this seems like an odd way to do it since it has less control than just setting the points to a value
 
