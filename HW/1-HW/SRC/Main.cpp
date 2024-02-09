@@ -15,20 +15,14 @@ using std::endl;
 int main() {
     // Create a new game
     Game *game = new Game();
-    game->playGame();
-    Player* player = game->getPlayers()[0];
-    cout<<"dots: "<<game->getBoard()->getDotsCount()<<endl;
-
-    cout<<game->GenerateReport(player)<<endl;
-    game->getBoard()->SetSquareValue(1,1, SquareType::Pacman);
-
-
-    // Game* game = new Game();
-    // Player* player = game->getPlayers()[0];
-    // Player *ghost = game->getEnemies()[0];
-    // player->SetPosition(1,1);
-    // ghost->SetPosition(1,8);
-    // vector<pair<int, int>> path = game->getBoard()->PathToPosition(player,ghost->get_x_pos(), ghost->get_y_pos());
-    // cout<<"path: "<<path.size()<<endl;
+    for(auto enemy : game->getEnemies()){
+    pair<int, int> currentPos = {enemy->get_x_pos(), enemy->get_y_pos()};
+    game->getBoard()->getEnemyLastPos()[enemy] = {currentPos, game->getBoard()->GetSquareValue(currentPos.first, currentPos.second)};
+    }
+    while(!game->IsGameOver(game->getPlayers()[0])){
+        game->playGame();
+    }
+    delete game->getBoard();
+    delete game;
     return 0;
 }

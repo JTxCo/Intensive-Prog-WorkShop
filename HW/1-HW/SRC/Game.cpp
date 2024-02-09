@@ -263,16 +263,23 @@ bool Board::MovePlayerRandom(Player* p) {
 // Move an enemy to a new position on the board. Return true if they moved successfully, false otherwise.
 // could also have this use the same function as the player
 bool Board::MoveEnemy(Player* p, pair<int, int> pos) {
-    cout<<"Moving enemy to: "<<pos.first<<", "<<pos.second<<endl;
-    // Check if the move is valid
+    cout << "Moving enemy to: " << pos.first << ", " << pos.second << endl;
+    // Check if the move is valid 
     if (notWall(pos.first, pos.second)) {
+        // Store the contents of the square we're moving from in the tracking map
+        pair<int, int> currentPos = {p->get_x_pos(), p->get_y_pos()};
+        SquareType currentSquareType = enemyLastPos[p].second;
+        SetSquareValue(currentPos.first, currentPos.second, currentSquareType);
         // Move the enemy to the new position
         p->SetPosition(pos.first, pos.second);
+        // Store the contents of the square we're about to move to in the tracking map
+        enemyLastPos[p] = {pos, GetSquareValue(pos.first, pos.second)};
         SetSquareValue(pos.first, pos.second, SquareType::Enemy);
         return true;
     }
     return false;
 }
+
 
 
 
@@ -718,6 +725,8 @@ bool Game::TakeTurnEnemy(Player*enemy){
     // then it will move to that position as quick as possible
     // if the enemy lands on the player then the player will loose a life
     cout<<"enemy cur row is: "<<enemy->get_x_pos()<<endl;
+    int enemy_row = enemy->get_x_pos();
+    int enemy_col = enemy->get_y_pos();
     cout<<"enemy cur col is: "<<enemy->get_y_pos()<<endl;
     // Getting the current position of the player
     // since the only player is pacman, in the player list at this time the first player is the human player
@@ -740,7 +749,9 @@ bool Game::TakeTurnEnemy(Player*enemy){
         case SquareType::Dot:
             // The enemy does not pick up the dot
             // Move the player to the new position
-            return board_->MoveEnemy(enemy, enemey_move);
+            board_->MoveEnemy(enemy, enemey_move);
+            board_->SetSquareValue(enemy_row, enemy_col, board_->getEnemyLastPos(enemy));
+            return true;
             break;
         case SquareType::Empty:
             // Move the player to the new position

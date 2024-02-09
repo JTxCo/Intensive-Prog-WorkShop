@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 #include "Player.h"
+#include <map>
 using std::vector;
 using std::pair;
 using std::string;
@@ -23,6 +24,7 @@ private:
 	int walls_count_;
 	int traps_count_;
 	int enemySpecialTreasure_count_;
+	std::map<Player*, std::pair<std::pair<int, int>, SquareType>> enemyLastPos;
 	SquareType **arr_;//this is how the board is stored, this is based on the default constructor
 	// if you want to set to another size then this will be set based on the input
 	// SquareType arr_[rows][cols];
@@ -51,7 +53,13 @@ public:
 	int getWallsCount() const {return walls_count_; }
 	int getTrapsCount() const {return traps_count_; }
 	int getEnemySpecialTreasureCount() const {return enemySpecialTreasure_count_; }
-
+	void setEnemyLastPos(Player *p, std::pair<int, int> pos, SquareType sq){
+		enemyLastPos[p] = {pos, sq};
+	}
+	std::map<Player*, std::pair<std::pair<int, int>, SquareType>> getEnemyLastPos() const {return enemyLastPos; }
+	SquareType getEnemyLastPos(Player *p){
+		return enemyLastPos[p].second;
+	}
 	// // TODO: you MUST implement the following functions
 	// SquareType get_square_value(Position pos) const;
 	SquareType GetSquareValue(int row, int col);
