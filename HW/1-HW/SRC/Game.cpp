@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <ncurses.h>
+#include <climits>
 using std::string;
 using std::pair;
 using std::vector;
@@ -136,12 +137,14 @@ vector<pair<int, int>> Board::GetPossibleMoves(int currRow, int currCol) {
 
 
 vector<pair<int, int>> Board::PathToPosition(Player* p, int endRow, int endCol) {
+    // using Djiikstra's algorithm to find the shortest path to the given position
+    // each move has no cost so it finds the shortest path to the player
     int startRow = p->get_y_pos();
     int startCol = p->get_x_pos();
     int n = rows_;
 
-    // uint's used to avoid negative values, adjust accordingly.
-    const unsigned int INF = (unsigned int)-1;
+   
+    const unsigned int INF = INT_MAX;
 
     // Create 2D vector for visited status and distances
     vector<vector<bool>> visited(n, vector<bool>(rows_, false));
@@ -186,14 +189,13 @@ vector<pair<int, int>> Board::PathToPosition(Player* p, int endRow, int endCol) 
         visited[currentRow][currentCol] = true;
 
         // Get all valid adjacent positions
-        vector<pair<int, int>> neighbors = GetPossibleMoves(p->get_x_pos(), p->get_y_pos());
-
+        // vector<pair<int, int>> neighbors = GetPossibleMoves(p->get_x_pos(), p->get_y_pos()); changing line to below
+        vector<pair<int, int>> neighbors = GetPossibleMoves(currentRow, currentCol);
         for (auto& neighbor : neighbors) {
             int neighborRow = neighbor.first;
             int neighborCol = neighbor.second;
-
             if (notWall(neighborRow, neighborCol) && !visited[neighborRow][neighborCol]) {
-                int altDistance = currentDistance + 1; // We are considering each edge to have a weight equal to 1
+                int altDistance = currentDistance + 1; 
 
                 if (altDistance < dist[neighborRow][neighborCol]) {
                     dist[neighborRow][neighborCol] = altDistance;
@@ -210,6 +212,8 @@ vector<pair<int, int>> Board::PathToPosition(Player* p, int endRow, int endCol) 
     int currentCol = endCol;
 
     while (currentRow != -1 && currentCol != -1) {
+        cout<<"currentRow: "<<currentRow<<endl;
+        cout<<"currentCol: "<<currentCol<<endl;
         path.push_back({currentRow, currentCol});
 
         pair<int, int> previousPos = prev[currentRow][currentCol];
@@ -259,6 +263,7 @@ bool Board::MovePlayerRandom(Player* p) {
 // Move an enemy to a new position on the board. Return true if they moved successfully, false otherwise.
 // could also have this use the same function as the player
 bool Board::MoveEnemy(Player* p, pair<int, int> pos) {
+    cout<<"Moving enemy to: "<<pos.first<<", "<<pos.second<<endl;
     // Check if the move is valid
     if (notWall(pos.first, pos.second)) {
         // Move the enemy to the new position
@@ -417,8 +422,7 @@ Game::Game() {
         respawnEnemy();
     }
     // set the game data since that will be created by the Board and now we are ready to play
-    setGameData();
-    playGame();
+    setGameData(); 
 }
 
 
@@ -713,7 +717,7 @@ bool Game::TakeTurnEnemy(Player*enemy){
     // then it will move to that position as quick as possible
     // if the enemy lands on the player then the player will loose a life
 
-
+    cout<<"Enemy's turn\n "<<endl;
     // Getting the current position of the player
     // since the only player is pacman, in the player list at this time the first player is the human player
     int player_row = players_[0]->get_y_pos();
@@ -723,12 +727,17 @@ bool Game::TakeTurnEnemy(Player*enemy){
     // this takes in the enemy player and the position of the player it is trying to get to
     // If there are 2 players, pacmen, then i could compare who is closer and then move to that player
     vector<pair<int, int>> path = board_->PathToPosition(enemy, player_row, player_col);
+    // printing path to person for testing
+    cout<<"path size: "<<path.size()<<endl;
+    for (int i = 0; i < path.size(); i++) {
+        cout << "X: " << path[i].first << ", Y: " << path[i].second << endl;
+    }
 
     // Move the enemy to the new position
     pair<int, int> enemey_move = path[1];
 
 
-
+    cout<<"enemy is going to move to: "<<enemey_move.first<<", "<<enemey_move.second<<endl;
     // Check to see if the landed on a valid position
     // if the enemy was moved to a valid spot then it returns true
     switch(board_->GetSquareValue(enemey_move.first, enemey_move.second)){

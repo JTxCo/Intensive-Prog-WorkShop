@@ -88,11 +88,30 @@ TEST_CASE("does the board get generated correctly"){
 //     delete game;
 // }
 
-TEST_CASE("Testing Player Position Selection"){
-    Game *game = new Game();
+// TEST_CASE("Testing Player Position Selection"){
+//     Game *game = new Game();
+//     Player* player = game->getPlayers()[0];
+//     game->PresentMoveOptions(player);
+//     REQUIRE(player->get_x_pos() == 1);
+//     REQUIRE(player->get_y_pos() == 0);
+//     delete game;
+// }
+
+
+
+// testing to see if the enemy ghost can track the player packman
+TEST_CASE("testing ghost tracking player"){
+    Game* game = new Game();
     Player* player = game->getPlayers()[0];
-    game->PresentMoveOptions(player);
-    REQUIRE(player->get_x_pos() == 1);
-    REQUIRE(player->get_y_pos() == 0);
+    Player *ghost = game->getEnemies()[0];
+    player->SetPosition(1,1);
+    ghost->SetPosition(1,8);
+    vector<pair<int, int>> path = game->getBoard()->PathToPosition(player,ghost->get_x_pos(), ghost->get_y_pos());
+
+    REQUIRE(path[0].first == 1);
+    REQUIRE(path[0].second == 1);
+    REQUIRE(path[1].first == 1);
+    REQUIRE(path[1].second == 2);
+
     delete game;
 }
