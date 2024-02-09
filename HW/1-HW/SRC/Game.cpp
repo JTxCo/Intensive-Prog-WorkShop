@@ -23,6 +23,8 @@ using std::endl;
 using std::cin;
 using std::regex;
 
+
+
 Board::Board() : rows_(12), cols_(12) { // Set default size of board to 12x12
     // Dynamically allocate memory for the 2D array
     // Initialize all positions as available, this might change later based on how the board set up is done later
@@ -212,8 +214,6 @@ vector<pair<int, int>> Board::PathToPosition(Player* p, int endRow, int endCol) 
     int currentCol = endCol;
 
     while (currentRow != -1 && currentCol != -1) {
-        cout<<"currentRow: "<<currentRow<<endl;
-        cout<<"currentCol: "<<currentCol<<endl;
         path.push_back({currentRow, currentCol});
 
         pair<int, int> previousPos = prev[currentRow][currentCol];
@@ -617,6 +617,7 @@ bool Game::TakeTurn(Player *p){
             break;
         case SquareType::Treasure:
             cout<<"Landed on a treasure"<<endl;
+            treasure_count_--;
             p->setHasTreasure();
             p->increasePoints(100);
             // remove the treasure from the board
@@ -716,8 +717,8 @@ bool Game::TakeTurnEnemy(Player*enemy){
     // the enemey will use the path to position function to find the shortest path to the player
     // then it will move to that position as quick as possible
     // if the enemy lands on the player then the player will loose a life
-
-    cout<<"Enemy's turn\n "<<endl;
+    cout<<"enemy cur row is: "<<enemy->get_x_pos()<<endl;
+    cout<<"enemy cur col is: "<<enemy->get_y_pos()<<endl;
     // Getting the current position of the player
     // since the only player is pacman, in the player list at this time the first player is the human player
     int player_row = players_[0]->get_y_pos();
@@ -727,11 +728,6 @@ bool Game::TakeTurnEnemy(Player*enemy){
     // this takes in the enemy player and the position of the player it is trying to get to
     // If there are 2 players, pacmen, then i could compare who is closer and then move to that player
     vector<pair<int, int>> path = board_->PathToPosition(enemy, player_row, player_col);
-    // printing path to person for testing
-    cout<<"path size: "<<path.size()<<endl;
-    for (int i = 0; i < path.size(); i++) {
-        cout << "X: " << path[i].first << ", Y: " << path[i].second << endl;
-    }
 
     // Move the enemy to the new position
     pair<int, int> enemey_move = path[1];
@@ -820,8 +816,10 @@ void Game::playGame(){
     cout<<"What does the player want to do? "<<endl;
     TakeTurn(players_[0]);
     cout<< GenerateReport(players_[0]);
-    // enemies go
-    TakeTurnEnemy(enemies_[0]);
+    // enemies go as many as there are
+    for(auto enemy : enemies_){
+        TakeTurnEnemy(enemy);
+    }
     DisplayGame();
 }
 

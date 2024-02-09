@@ -48,7 +48,6 @@ public:
 		void setMovesTaken(int moves) {movesTaken = moves; }
 		int getMovesTaken() const {return movesTaken; }
 		void increaseMovesTaken() {movesTaken++; }
-
 		// // TODO: implement the following functions
 		// // You MUST implement the following functions
 
