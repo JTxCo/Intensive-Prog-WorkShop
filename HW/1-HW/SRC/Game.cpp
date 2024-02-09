@@ -111,8 +111,6 @@ vector<pair<int, int>> Board::GetPossibleMoves(int currRow, int currCol) {
     // Obtain the current position of the player
     // int currRow = p->get_y_pos(); redid the function from  an input of a player p
     // int currCol = p->get_x_pos();
-    cout<<"currRow: "<<currRow<<endl;
-    cout<<"currCol: "<<currCol<<endl;
     vector<pair<int, int>> positions;
 
     // Check the adjacent positions for valid moves, making sure the space is available and not a wall
@@ -238,6 +236,7 @@ bool Board::MovePlayer(Player* p, int row, int col, vector<Player*> enemylist) {
         }
         // Move the player to the new position
         p->SetPosition(row, col);
+        SetSquareValue(row, col, SquareType::Pacman);
         return true;
     }
     return false;
@@ -264,6 +263,7 @@ bool Board::MoveEnemy(Player* p, pair<int, int> pos) {
     if (notWall(pos.first, pos.second)) {
         // Move the enemy to the new position
         p->SetPosition(pos.first, pos.second);
+        SetSquareValue(pos.first, pos.second, SquareType::Enemy);
         return true;
     }
     return false;
@@ -555,7 +555,8 @@ bool Game::TakeTurn(Player *p){
             dots_count_--;
             // update player score
             p->increasePoints(1);
-            board_->SetSquareValue(move.first, move.second, SquareType::Empty);
+            // updating the old spot to empty
+            board_->SetSquareValue(p->get_x_pos(), p->get_y_pos(), SquareType::Empty);
             // Move the player to the new position
             board_->MovePlayer(p, move.first, move.second, players_);
             UpdatePlayerData(p, move.first, move.second);
@@ -598,6 +599,7 @@ bool Game::TakeTurn(Player *p){
                 // Move the player to the new position
                 // board_->MovePlayer(p, move.first, move.second, players_);
             }
+            UpdatePlayerData(p, move.first, move.second);
             break;
         case SquareType::Pacman:
             cout<<"Landed on a pacman"<<endl;
@@ -607,59 +609,26 @@ bool Game::TakeTurn(Player *p){
                 // Move the player to the new position
                 // don't move the player since for right now this is an error
             }
-
-            // right now code below is unused because it is used in the case of the enemy landing on the player
-            // if i don't use it i need to make a function for moving the enemy and not have them in the same function
-
-            // else{
-            //     if(p->hasTreasure()&& enemy->hasTreasure()){
-            //         // if the enemy has treasure and the player has treasure then nothing happens
-            //         // the player looses their treasure
-            //         p->setLostTreasure();
-            //         enemy->setLostTreasure();
-            //     }
-            //     else if(p->hasTreasure()&&!enemy->hasTreasure()){
-            //         // if the enemy does not have treasure and the player does then the enemy has died
-            //         enemy->has_died();
-            //         enemy->setLives(enemy->getLives() - 1);
-            //         // need to call a respawn function
-            //         // move the player to the same location it died at
-            //     }
-            //     else if(!p->hasTreasure()&&enemy->hasTreasure()){
-            //         // if the enemy has treasure and the player does not then the player has died
-            //         p->has_died();
-            //         p->setLives(p->getLives() - 1);
-            //         // need to call a respawn function
-            //         // move the player to the same location it died at
-            //     }
-            //     else if(!p->hasTreasure()&&!enemy->hasTreasure()){
-            //         // if the enemy does not have treasure and the player does not then the player has died
-            //         p->has_died();
-            //         p->setLives(p->getLives() - 1);
-            //         // need to call a respawn function
-            //         // move the player to the same location it died at
-
-            //     }
-            //     p->has_died();
-            //     p->setLives(p->getLives() - 1);
-            //     // need to call a respawn function
-            //     // move the player to the same location it died at
-            // }
-
+            UpdatePlayerData(p, move.first, move.second);
+            break;
         case SquareType::Treasure:
             cout<<"Landed on a treasure"<<endl;
             p->setHasTreasure();
             p->increasePoints(100);
             // remove the treasure from the board
-            board_->SetSquareValue(move.first, move.second, SquareType::Empty);
+            // setting the old spot to empty
+            board_->SetSquareValue(p->get_x_pos(), p->get_y_pos(), SquareType::Empty);
             // Move the player to the new position since it is valid
             board_->MovePlayer(p, move.first, move.second, players_); 
+            UpdatePlayerData(p, move.first, move.second);
             break;
         case SquareType::Trap:
             cout<<"Landed on a trap"<<endl;
             p->has_died();
             p->setLives(p->getLives() - 1);
             // player has hit a trap so they are moved to a random location
+            board_->MovePlayer(p, move.first, move.second, players_);
+            UpdatePlayerData(p, move.first, move.second);
             break;
         case SquareType::EnemySpecialTreasure:
             cout<<"Landed on an enemy special treasure"<<endl;
@@ -669,7 +638,9 @@ bool Game::TakeTurn(Player *p){
             if(p->isHuman()){
                 // THe player has gone to an invalid location for a player thus they can not go here
                 // board_->MovePlayer(p, move.first, move.second, players_);
-                cout<<"landed on enemy treasure as a human so nothing happens"<<endl;
+                cout<<"landed on enemy treasure as a human so nothing happens to the "<<endl;
+                board_->MovePlayer(p, move.first, move.second, players_);
+                UpdatePlayerData(p, move.first, move.second);
             }
             else{
                 p->setHasTreasure();
@@ -680,12 +651,14 @@ bool Game::TakeTurn(Player *p){
                 // board_->MovePlayer(p, move.first, move.second, players_);
                 // might need to use the move enemey function
             }
+            UpdatePlayerData(p, move.first, move.second);
             break;
         case SquareType::Wall:
-            cout<<"Landed on a wall"<<endl;
+            cout<<"Landed on a wall, player data has not been updated"<<endl;
             // if the player lands on a wall then they are not moved
             // this is an invalid move
             // an error has occured
+
             break;
         default:
             break;
@@ -753,6 +726,9 @@ bool Game::TakeTurnEnemy(Player*enemy){
 
     // Move the enemy to the new position
     pair<int, int> enemey_move = path[1];
+
+
+
     // Check to see if the landed on a valid position
     // if the enemy was moved to a valid spot then it returns true
     switch(board_->GetSquareValue(enemey_move.first, enemey_move.second)){
@@ -769,6 +745,7 @@ bool Game::TakeTurnEnemy(Player*enemy){
             // if the enemy lands on another enemy then they do not move
             return true;
             break;
+        
         case SquareType::Pacman:
             // if the player lands on the pacman something has gone wrong since they are the same player
             // if it is the enemy then the player has lost a life/died
@@ -803,6 +780,14 @@ bool Game::TakeTurnEnemy(Player*enemy){
                     return false;
                 }
             break;
+        case SquareType::EnemySpecialTreasure:
+            // if the enemy lands on the enemy special treasure then they will gain treasure
+            enemy->setHasTreasure();
+            // remove the treasure from the board
+            board_->SetSquareValue(enemey_move.first, enemey_move.second, SquareType::Empty);
+            // Move the player to the new position since it is valid
+            return board_->MoveEnemy(enemy, enemey_move);
+            break;
         case SquareType::Treasure:
             // the enemy does not pick up the treasure
             // Move the player to the new position
@@ -828,6 +813,7 @@ void Game::playGame(){
     cout<< GenerateReport(players_[0]);
     // enemies go
     TakeTurnEnemy(enemies_[0]);
+    DisplayGame();
 }
 
 
