@@ -1,0 +1,28 @@
+# Built files
+*.o
+*.so
+*.a
+*.out
+*.exe
+
+# Executables (adjust as per project)
+main
+test
+
+# Build Folder (if you are using any)
+/build/
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# OS generated files
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Desktop.ini

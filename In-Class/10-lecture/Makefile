@@ -1,13 +1,26 @@
 CXX = g++
-CXXFLAGS    = -std=c++17 -Wall
+CXXFLAGS = -std=c++20 -Wall
 
-all: main
+SRCS =pe3_references.cpp main.cpp 
+OBJS = $(SRCS:.cpp=.o)
+TARGET = main
+
+SRCS2 = pe3_references.cpp test.cpp 
+OBJS2 = $(SRCS2:.cpp=.o)
+TARGET2 = target2
+
+.PHONY: all clean
+
+all: $(TARGET) $(TARGET2)
+
+$(TARGET): catch.hpp $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(TARGET)
+
+$(TARGET2): $(OBJS2)
+	$(CXX) $(CXXFLAGS) $(OBJS2) -o $(TARGET2)
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm Tree.o main
-
-main: Point.o tree_main.cpp
-	$(CXX) $(CXXFLAGS) tree_main.cpp Tree.o -o main
-
-Point.o: Tree.cpp
-	$(CXX) $(CXXFLAGS) -c Tree.cpp
+	rm -f $(OBJS) $(TARGET) $(OBJS2) $(TARGET2)
