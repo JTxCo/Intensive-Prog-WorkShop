@@ -1,20 +1,44 @@
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall
+CXXFLAGS = -std=c++20 -Wall -I$(INCDIR)
 
-SRCS = Game.cpp Player.cpp Main.cpp 
-# using main to run the game
-OBJS = $(SRCS:.cpp=.o)
-TARGET = Main
+SRCDIR = src
+TESTDIR = test
+OBJDIR = obj
+INCDIR = include
 
-.PHONY: all clean
+SRCS = $(filter-out $(SRCDIR)/Main.cpp, $(wildcard $(SRCDIR)/*.cpp))
+TESTSRCS = $(wildcard $(TESTDIR)/*.cpp)
+OBJ_MAIN = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
+OBJ_TEST = $(patsubst $(TESTDIR)/%.cpp,$(OBJDIR)/%.o,$(TESTSRCS)) $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
+TARGET_MAIN = Main
+TARGET_TEST = test_runner
 
-all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(TARGET)
 
-.cpp.o:
+.PHONY: all main test clean
+
+all: main test
+
+main: obj_dir $(TARGET_MAIN)
+
+test: obj_dir $(TARGET_TEST)
+
+$(TARGET_MAIN): $(SRCDIR)/Main.cpp $(OBJ_MAIN)
+	$(CXX) $(CXXFLAGS) $(SRCDIR)/Main.cpp $(OBJ_MAIN) -o $(TARGET_MAIN)
+
+
+$(TARGET_TEST): $(OBJ_TEST) 
+	$(CXX) $(CXXFLAGS) $(OBJ_TEST) -o $(TARGET_TEST)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+$(OBJDIR)/%.o: $(TESTDIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+obj_dir:
+	mkdir -p $(OBJDIR)
+
 clean:
-	rm -f $(OBJS) $(TARGET)
+	$(RM) -r $(OBJDIR)
+	$(RM) $(TARGET_MAIN) $(TARGET_TEST)
