@@ -48,27 +48,6 @@ class Tree{
             delete node;
             node = nullptr;
         }
-
-    public:
-        // constructor
-        Tree(T val) {
-            root = new Node;
-            root->data = val;
-            root->left = nullptr;
-            root->right = nullptr;
-        }
-
-        // destructor
-        ~Tree(){
-            deleteTree(root);
-        }
-
-
-        // get the root value
-        Node* &getRoot() {
-            return root;
-        }
-        // insertElement
         void insertElement(Node* &node, T val) {
             if (node == nullptr) {
                 node = new Node;
@@ -81,8 +60,16 @@ class Tree{
                 insertElement(node->right, val);
             }
         }
-        // search for element in the tree, returns true if found, else false
-       bool search(Node* node, T val) {
+
+        void printTree(Node* node)const {
+            if (node == nullptr) {
+                return;
+            }
+            printTree(node->left);
+            std::cout << node->data << " ";
+            printTree(node->right);
+        }
+        bool search(Node* node, T val)const {
             if (node == nullptr) {
                 return false;
             } else if (node->data == val) {
@@ -93,8 +80,7 @@ class Tree{
                 return search(node->right, val);
             }
         }
-        // delete element from the tree
-        void deleteElement(Node* &node, T val) {
+       void deleteElement(Node* &node, T val) {
             if (node == nullptr) {
                 return;
             } else if (val < node->data) {
@@ -123,21 +109,47 @@ class Tree{
                 }
             }
         }
-
-        // print the tree
-        void printTree(Node* node){
-            if (node == nullptr) {
-                return;
-            }
-            printTree(node->left);
-            cout << node->data << " ";
-            printTree(node->right);
+    public:
+        // constructor
+        Tree(T val) {
+            root = new Node;
+            root->data = val;
+            root->left = nullptr;
+            root->right = nullptr;
         }
+
+        // destructor
+        ~Tree(){
+            deleteTree(root);
+        }
+
+
+        // get the root value
+        const Node* getRoot() const{
+            return root;
+        }
+        // insertElement
+        void insertElement(T val){
+            insertElement(root, val);
+        }
+        // search for element in the tree, returns true if found, else false
+        bool search( T val)const {
+            return search(root, val);
+        }
+        // delete element from the tree
+        void deleteElement(T val) {
+            deleteElement(root, val);
+        }
+        // print the tree
+        void printTree() const {
+            printTree(root);
+        }
+
         // overload the << operator for Tree<T>
         friend std::ostream& operator<<(std::ostream& os, const Tree<T> &t) {
             os << "{";
-            t.printTree(t.root);
+            t.printTree();
             os << "}";
             return os;
-        }   
+        }
 };

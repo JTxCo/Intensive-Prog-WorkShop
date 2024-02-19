@@ -87,7 +87,39 @@ TEST_CASE("Testing the HashMap class: Strings") {
         REQUIRE(map.search("one") == false);
     }
 }
-
+TEST_CASE("Testing hash with decimals"){
+    // HashMap
+    HashMap<double> map({1.1,2.2,3.3,4.4,5.5,6.6,7.7,8.8,9.9,10.10}, 10);
+    SECTION("Testing hashkey"){
+        // hashKey
+        //testing if the hashkey is the same for the same string
+        // the hashkey is not predictable so we can only test if it is consistent
+        auto oneHash = map.hashKey(1.1);
+        REQUIRE(map.hashKey(1.1) == oneHash);
+        auto twoHash = map.hashKey(2.2);
+        REQUIRE(map.hashKey(2.2) == twoHash);
+    }
+    SECTION("Testing insertElement"){
+        // insertElement
+        // string insertion
+        map.insertElement(11.11);
+        auto elevenHash = map.hashKey(11.11);
+        REQUIRE(map.hashKey(11.11) == elevenHash);
+    }
+    SECTION("Testing search"){
+        // search
+        // string search
+        REQUIRE(map.search(1.1) == true);
+        REQUIRE(map.search(10.10) == true);
+        REQUIRE(map.search(22.22) == false);
+    }
+    SECTION("Testing deleteElement"){
+        // deleteElement
+        // string deletion
+        map.deleteElement(1.1);
+        REQUIRE(map.search(1.1) == false);
+    }
+}
 
 // Testing the Linear class
 TEST_CASE("Testing the Linear class: Ints") {
@@ -156,31 +188,49 @@ TEST_CASE("Testing the Linear class: Strings") {
 TEST_CASE("Testing the Tree class: Ints") {
     // Tree
     Tree<int> t(5);
-    t.insertElement(t.getRoot(), 3);
-    t.insertElement(t.getRoot(), 7);
-    t.insertElement(t.getRoot(), 2);
-    t.insertElement(t.getRoot(), 4);
-    t.insertElement(t.getRoot(), 6);
-    t.insertElement(t.getRoot(), 8);
+    t.insertElement(3);
+    t.insertElement( 7);
+    t.insertElement( 2);
+    t.insertElement( 4);
+    t.insertElement( 6);
+    t.insertElement( 8);
 
     SECTION("Testing insertElement"){
         // check elements
-        REQUIRE(t.search(t.getRoot(), 3) == true);
-        REQUIRE(t.search(t.getRoot(), 7) == true);
-        REQUIRE(t.search(t.getRoot(), 2) == true);
-        REQUIRE(t.search(t.getRoot(), 4) == true);
-        REQUIRE(t.search(t.getRoot(), 6) == true);
-        REQUIRE(t.search(t.getRoot(), 8) == true);
+        REQUIRE(t.search( 3) == true);
+        REQUIRE(t.search( 7) == true);
+        REQUIRE(t.search( 2) == true);
+        REQUIRE(t.search( 4) == true);
+        REQUIRE(t.search( 6) == true);
+        REQUIRE(t.search( 8) == true);
     }
     SECTION("Testing search"){
         // search
-        REQUIRE(t.search(t.getRoot(), 3) == true);
-        REQUIRE(t.search(t.getRoot(), 7) == true);
-        REQUIRE(t.search(t.getRoot(), 22) == false);
+        REQUIRE(t.search( 3) == true);
+        REQUIRE(t.search( 7) == true);
+        REQUIRE(t.search( 22) == false);
     }
     SECTION("Testing deleteElement"){
         // deleteElement
-        t.deleteElement(t.getRoot(), 3);
-        REQUIRE(t.search(t.getRoot(), 3) == false);
+        t.deleteElement( 3);
+        REQUIRE(t.search( 3) == false);
     }
 }
+
+
+
+/*
+    Time complexity testing
+    Verifying time complexities for the data structures:
+In addition to testing the methods of the classes you will also verify the time complexity for searching an element in the data structures. Provide your observation as comments in your test.cpp alongside your assertions.
+The input is a list of unique elements. You can start with a small dataset and work up to test with the datasets provided in the files - integers.csv, decimals.csv, strings.csv
+The comparisons of time complexity for the search operation you will perform will be with elements at:
+1.	The first position in the input list
+2.	The last position in the input list
+3.	A random position in the input list
+
+*/
+
+
+// Testing First Postion for all 3 data structures
+

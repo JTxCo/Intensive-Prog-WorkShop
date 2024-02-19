@@ -12,8 +12,8 @@ using std::endl;
 int main(){
     // Tree
     Tree<int> tree(5);
-    tree.insertElement(tree.getRoot(), 3);
-    tree.insertElement(tree.getRoot(), 7);
-    tree.insertElement(tree.getRoot(), 2);
+    tree.insertElement( 3);
+    tree.insertElement( 7);
+    tree.insertElement( 2);
     cout<< tree<<endl;
 }
