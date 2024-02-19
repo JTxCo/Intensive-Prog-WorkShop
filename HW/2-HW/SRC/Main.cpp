@@ -10,9 +10,10 @@ using std::cout;
 using std::endl;
 
 int main(){
-    // linear
-    Linear<int> l;
-    l.insertElement(1);
-    cout<<"is 1 in the list: " << l.search(1) << endl;
-    return 0;
+    // Tree
+    Tree<int> tree(5);
+    tree.insertElement(tree.getRoot(), 3);
+    tree.insertElement(tree.getRoot(), 7);
+    tree.insertElement(tree.getRoot(), 2);
+    cout<< tree<<endl;
 }

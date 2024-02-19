@@ -38,6 +38,17 @@ class Tree{
         };
         Node* root;
 
+        // delete the tree
+        void deleteTree(Node* &node) {
+            if (node == nullptr) {
+                return;
+            }
+            deleteTree(node->left);
+            deleteTree(node->right);
+            delete node;
+            node = nullptr;
+        }
+
     public:
         // constructor
         Tree(T val) {
@@ -46,12 +57,15 @@ class Tree{
             root->left = nullptr;
             root->right = nullptr;
         }
+
         // destructor
         ~Tree(){
             deleteTree(root);
         }
+
+
         // get the root value
-        Node* &getRoot(){
+        Node* &getRoot() {
             return root;
         }
         // insertElement
@@ -109,8 +123,21 @@ class Tree{
                 }
             }
         }
+
         // print the tree
-        void deleteTree(Node* &node);
-        // print the tree
-        void printTree(Node* node);
+        void printTree(Node* node){
+            if (node == nullptr) {
+                return;
+            }
+            printTree(node->left);
+            cout << node->data << " ";
+            printTree(node->right);
+        }
+        // overload the << operator for Tree<T>
+        friend std::ostream& operator<<(std::ostream& os, const Tree<T> &t) {
+            os << "{";
+            t.printTree(t.root);
+            os << "}";
+            return os;
+        }   
 };
