@@ -2,6 +2,7 @@
 
 This project's performance tests are implemented using the [Google Benchmark](https://github.com/google/benchmark) library.
 
+I used a lot of resources on the github page to understand the benchmarking plus articles and chatgpt
 
 
 The results of the benchmark are included here for reference:
