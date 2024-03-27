@@ -12,12 +12,14 @@ SOURCES += \
     gameboard.cpp \
     main.cpp \
     mainwindow.cpp \
+    pawn.cpp \
     player.cpp \
     position.cpp
 
 HEADERS += \
     gameboard.h \
     mainwindow.h \
+    pawn.h \
     player.h \
     position.h
 
