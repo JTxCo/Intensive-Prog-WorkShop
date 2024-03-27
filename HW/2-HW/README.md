@@ -1,5 +1,5 @@
 ## Benchmarks
-
+The make file will run all by default. There are spefic parameters for each option make test, bench, or main
 This project's performance tests are implemented using the [Google Benchmark](https://github.com/google/benchmark) library.
 
 I used a lot of resources on the github page to understand the benchmarking plus articles and chatgpt
