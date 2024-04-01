@@ -65,4 +65,7 @@
         "variant": "cpp",
         "algorithm": "cpp"
     }
+
+"qbs.qtc.qbsInstallDir": "/Users/joel-carlson/Qt/6.6.2/macos/bin",
+"qbs.qtc.qtInstallDir": "/Users/joel-carlson/Qt/6.6.2/macos"
 }
