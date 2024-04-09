@@ -3,21 +3,22 @@
 
 #include <QWidget>
 #include "position.h"
-#include "pawn.h"
-class Position;
+#include "player.h"
+
 
 class CellWidget : public QWidget {
     // Q_OBJECT
 
 private:
     Position* position_;
-    std::vector<Pawn*> m_Pawns_;
-    void updateDisplay();  // Update the widget to reflect the state of the Pawn
+    std::vector<Player*> m_players_;
+    void updateDisplay();  // Update the widget to reflect the state of the player
 public:
-    CellWidget(Position* position = nullptr, Pawn* pawnObj = nullptr, QWidget* parent = nullptr);
-    void addPawn(Pawn* pawnObj);
-    void removePawn(Pawn* pawnObj);
+    CellWidget(Position* position = nullptr, Player* pawnObj = nullptr, QWidget* parent = nullptr);
+    void addPlayer(Player* playerObj);
+    void removePlayer(Player* playerObj);
     void paintEvent(QPaintEvent *event) override;  // Override to draw your Pawn etc.
+    Position* getCellWidgetPosition(){return position_;}
 };
 
 #endif // CELLWIDGET_H

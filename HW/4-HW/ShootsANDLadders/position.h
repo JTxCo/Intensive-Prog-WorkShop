@@ -23,6 +23,7 @@ public:
     std::pair<int, int> getCordinates(){return {x_,y_};}
     int getNumber(){return number_;}
     void setNumber(int number){number_ = number;}
+    int getX(){return x_;}
+    int getY(){return y_;}
 };
-
 #endif // POSITION_H

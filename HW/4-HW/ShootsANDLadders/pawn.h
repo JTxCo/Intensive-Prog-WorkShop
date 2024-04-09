@@ -1,26 +1,28 @@
 #ifndef PAWN_H
 #define PAWN_H
-
 #include <QObject>
+class Position;
 
 class Pawn : public QObject
 {
     Q_OBJECT
 
 private:
-    std::pair<int,int> position_;
+    Position* position_;
     int ID_;
+
 signals:
-    void positionChanged(std::pair<int,int> newPosition);
+    void positionChanged(Position* newPosition);
 public slots:
-    void onPlayerPositionChanged(std::pair<int,int> newPosition);
+    void onPlayerPositionChanged(Position* postion);
 
 public:
     Pawn();
     void setID(int id){ID_ = id;}
     int getID(){return ID_;}
-    std::pair<int,int> getPosition(){return position_;}
-    void movePawn(std::pair<int,int> newPosition);
+    Position* getPosition(){return position_;}
+    void movePawn(Position* position);
+
 };
 
 #endif // PAWN_H

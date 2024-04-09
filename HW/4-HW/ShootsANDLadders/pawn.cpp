@@ -4,11 +4,11 @@ Pawn::Pawn() {}
 
 
 
-void Pawn::onPlayerPositionChanged(std::pair<int,int> newPosition) {
+void Pawn::onPlayerPositionChanged(Position* newPosition) {
     position_ = newPosition;
 }
 
-void Pawn::movePawn(std::pair<int,int> newPosition) {
+void Pawn::movePawn(Position* newPosition) {
     position_ = newPosition;
     emit positionChanged(newPosition);
 }
