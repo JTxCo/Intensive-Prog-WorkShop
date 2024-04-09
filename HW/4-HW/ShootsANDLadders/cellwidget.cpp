@@ -3,11 +3,11 @@
 #include <QLabel>
 #include <QSharedPointer>
 #include <QPainter>
-CellWidget::CellWidget(Position* position, Pawn* pawnObj, QWidget *parent) : QWidget(parent), position_(position)
+CellWidget::CellWidget(Position* position, Player* playerObj, QWidget *parent) : QWidget(parent), position_(position)
 {
-    if (pawnObj) {
-        // Only add pawnObj if it is not nullptr
-        addPawn(pawnObj);
+    if (playerObj) {
+        // Only add playeObj if it is not nullptr
+        addPlayer(playerObj);
     }
     this->setStyleSheet("background-color: lightgrey; border: 1px solid black;"); // Customize as per need.
     
@@ -41,17 +41,24 @@ void CellWidget::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setPen(Qt::black); // Sets color for drawing text
 
-    // Check if there are any pawns associated with this cell
-    for(auto& m_Pawn: m_Pawns_) {
-        // A circle represents the pawn
-        QPointF center(this->width()/2.0, this->height()/2.0);
-        float radius = qMin(this->width(), this->height()) / 2.0 - 5;  // Reserve 5px for padding
+    // Determine the spacing for each player avatar
+    float playerSpacing = this->width() / static_cast<float>(m_players_.size() + 1);
+    float radius = qMin(this->width(), this->height()) / (m_players_.size() / 2.0 + 1) / 2.0 - 5;  // Reserve 5px for padding
+    QFont font = painter.font();
+    font.setPointSize(radius - 10);
+    painter.setFont(font);
 
-        // Set the color based on the player to which the pawn belongs
+    for(size_t i = 0; i < m_players_.size(); i++) {
+        // Calculate the center for each player
+        QPointF center(playerSpacing * (i + 1), this->height() / 2.0);
+
+
+        // Set the color based on the player to which the Player belongs
         QColor color;
 
-        switch(m_Pawn->getID()) {
+        switch(m_players_[i]->getId()-1) {
         case 0: color = QColor("red"); break;
         case 1: color = QColor("green"); break;
         case 2: color = QColor("blue"); break;
@@ -61,33 +68,35 @@ void CellWidget::paintEvent(QPaintEvent *event)
 
         painter.setBrush(color);
 
-        // Draw the pawn as a circle
-        painter.drawEllipse(center, radius, radius);
+        // Draw the Player as a circle
+        QRectF rect(center.x() - radius, center.y() - radius, 2*radius, 2*radius);
+        painter.drawEllipse(rect);
+
+        // Draw the Player number in the center of circle
+        painter.drawText(rect, Qt::AlignCenter, QString::number(m_players_[i]->getId()));
     }
 }
-void CellWidget::addPawn(Pawn* pawnObj) {
-    if(pawnObj  == nullptr) {
+
+void CellWidget::addPlayer(Player* PlayerObj) {
+    if(PlayerObj  == nullptr) {
         return;
     }
-    m_Pawns_.push_back(pawnObj);
-    // Connect 'positionChanged' signal to 'updateDisplay' for new pawn
-    connect(pawnObj, &Pawn::positionChanged, this, &CellWidget::updateDisplay);
-
+    m_players_.push_back(PlayerObj);
+    // Connect 'positionChanged' signal to 'updateDisplay' for new player
+    connect(PlayerObj, &Player::positionChanged, this, &CellWidget::updateDisplay);
+    qDebug()<<"added player to cell wdiget and list";
     // Trigger redraw
     update();
 }
 
-void CellWidget::removePawn(Pawn* pawnObj) {
-    auto it = std::remove(m_Pawns_.begin(), m_Pawns_.end(), pawnObj);
-
-    // If the pawnObj was found and removed from the vector
-    if(it != m_Pawns_.end()) {
-        m_Pawns_.erase(it, m_Pawns_.end());
-        // Disconnect 'positionChanged' signal from 'updateDisplay' for removed pawn
-        disconnect(pawnObj, &Pawn::positionChanged, this, &CellWidget::updateDisplay);
-
-        // Trigger redraw
+void CellWidget::removePlayer(Player* playerObj) {
+    auto it = std::remove(m_players_.begin(), m_players_.end(), playerObj);
+    qDebug()<<"List size: "+ QString::number(m_players_.size());
+    if(it != m_players_.end()) {
+        qDebug()<<"Removed player in cellwidget";
+        m_players_.erase(it, m_players_.end());
         update();
+        disconnect(playerObj, &Player::positionChanged, this, &CellWidget::updateDisplay);
     }
 }
 void CellWidget::updateDisplay(){

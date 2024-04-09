@@ -1,33 +1,42 @@
 #ifndef PLAYER_H
 #define PLAYER_H
+#include <QObject>
 #include <string>
 #include <utility>
-#include "pawn.h"
 
 using std::string;
-using std:: pair;
+using std::pair;
 
+class Position;
 
-class Player
+class Player : public QObject
 {
+    Q_OBJECT
+
 private:
     string name_;
-    pair<int,int> position_;
+    Position* position_;
     int playerID_;
-    Pawn* pawn_;
+    bool inHolding = true;
+signals:
+    void positionChanged(Position* newPosition);
+public slots:
+    void onPlayerPositionChanged(Position* position){position_ = position;}
 public:
     Player();
     Player(string name, int playerID);
 
     void setName(string name){name_ = name;}
     string getName() const {return name_;}
-    void setPosition(pair<int,int> position){position_ = position;}
-    pair<int,int> getPosition() const {return position_;}
+    void setPosition(Position* position);
+    Position* getPosition(){return position_;}
+    void removePosition();
     void setPlayerID(int playerID){playerID_ = playerID;}
     int getId() const {return playerID_;}
-    void setPawn(Pawn* p){pawn_ = p;}
-    Pawn* getPawn(){return pawn_;}
-    ~Player() {delete pawn_;}
+
+    bool locationHolding(){return inHolding;}
+    void moveFromHolding(){inHolding = false;}
+    // ~Player() {delete position_;}  // Look at comment below
 };
 
 #endif // PLAYER_H
