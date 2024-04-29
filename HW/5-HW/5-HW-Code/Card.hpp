@@ -45,7 +45,7 @@ class Card
         Rank m_rank;
         int m_value = 0;
         bool m_isFaceUp;
-        Special m_special = Special::SPECIAL_MAX;
+        Special m_special;
     public:
         Card(Suit suit, Rank rank, bool isFaceUp);  // Add this constructor
         void Flip();

@@ -7,7 +7,7 @@
 
 
 //Special type of card 
-// (Joker Class): There will be X for number of player joker cards: these allow the player to set the value they want the card to be up 11 as that is the equivalent of an ace
+// (Joker Class): these allow the player to set the value they want the card to be up 11 as that is the equivalent of an ace
 
 
 class Joker : public Card
@@ -17,6 +17,7 @@ class Joker : public Card
         int m_value;
     public:
         Joker();
+        
         void SetValue(int value);//value is going to be set by the player for what they want it to be
         Special getSpecial() const override;
         friend std::ostream& operator<< (std::ostream& out, const Joker& joker);

@@ -21,6 +21,7 @@ int Player::GetHandValue() {
         if (card->getValue() == 1) {
             numAces++;
         }
+        
         total += card->getValue();
     }
     while (total <= 11 && numAces > 0) {

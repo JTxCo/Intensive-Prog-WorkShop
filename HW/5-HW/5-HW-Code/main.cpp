@@ -102,7 +102,7 @@ Card jokerCard(Joker * joker){
 }
 
 
-Card emperorCard(Emperor * emperor, Dealer* dealer){
+Card emperorCard(Emperor * emperor, Dealer* dealer, vector<Card*> &deck){
     /*
     o	(Emperor Class) X num players / 2 cards, minimum 2; Emporer Card: 
         may choose one of the dealers cards or draw a new card. 
@@ -125,10 +125,11 @@ Card emperorCard(Emperor * emperor, Dealer* dealer){
         return dealer->getCard(index);
     } else if(choice == 2){
         // Draw a new card
-        return *emperor;
+        cout<<"The Emperor draws a new card"<<endl;
+        return *deck.back();
     } else if(choice == 3){
         cout<<"The Emperor can choose one of the dealer's cards or draw a new card"<<endl;
-        return emperorCard(emperor, dealer);
+        return emperorCard(emperor, dealer, deck);
     } else {
         cout<<"Invalid choice"<<endl;
         return *emperor;
@@ -200,7 +201,7 @@ void playerTurn(vector<Card*> &deck, vector<Player*> &players) {
                 jokerCard(static_cast<Joker*>(card));
             } else if (card->getSpecial() == Special::SPECIAL_EMPEROR) {
                 cout<<"You have an emperor card"<<endl;
-                emperorCard(static_cast<Emperor*>(card), static_cast<Dealer*>(players.back()));
+                emperorCard(static_cast<Emperor*>(card), static_cast<Dealer*>(players.back()), deck);
             }
             else if(card->getSpecial() == Special::SPECIAL_ACE){
                 cout<<"You have an Ace card"<<endl;

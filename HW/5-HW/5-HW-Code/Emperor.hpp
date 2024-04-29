@@ -4,6 +4,8 @@
 
 #include "Card.hpp"
 
+// Emporer Card: may choose one of the dealers cards or draw a new card. 
+
 class Emperor : public Card {
 private:
     Special m_special = Special::SPECIAL_EMPEROR;

@@ -24,9 +24,19 @@ int Card::getValue() const
         {   
             case Rank::MAX_RANKS:
                 value = 0;
+                // use the get value function
+                if(m_special == Special::SPECIAL_JOKER)
+                {
+                    value = m_value;
+                }
+                else if(m_special == Special::SPECIAL_EMPEROR)
+                {
+                    value = m_value;
+                }
                 break;
             case Rank::RANK_ACE:
-                value = 11;
+
+                value = m_value;
                 break;
             case Rank::RANK_10:
             case Rank::RANK_JACK:
