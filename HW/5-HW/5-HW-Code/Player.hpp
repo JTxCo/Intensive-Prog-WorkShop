@@ -15,14 +15,15 @@ protected:
 public:
     Player(string name);
     virtual ~Player() = default;
-    std::vector<Card*> getHand();
+    std::vector<Card*>& getHand();
     int GetHandValue();
     void addCard(Card* pCard);
+    void setCard(Card* pCard, int index);
     void ClearHand();
     bool IsBusted();
     void printHand();
     string getName();
-
+ 
 };
 
 #endif // PLAYER_HPP

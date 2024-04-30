@@ -12,7 +12,7 @@ class Dealer : public Player
     public:
         Dealer(string name);
         virtual ~Dealer();
-        Card getCard(int index);
+        Card* getCard(int index);
         void FlipFirstCard();
         void FlipAllCards();
 };

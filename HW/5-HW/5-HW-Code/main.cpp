@@ -63,6 +63,23 @@ vector<Card*> createDeck() {
     cout<<"Deck created"<<endl;
     return deck;
 }
+
+Card* createOneCard(int value, Suit suit){
+    if(value == 11 ||value == 1){
+        // creating an Ace card
+        Card* ace = new Card(suit, Rank::RANK_ACE, true);
+        ace->setSpecial(Special::SPECIAL_ACE);
+        ace->setValue(value);
+        return ace;
+    }
+    return new Card(suit, static_cast<Rank>(value - 2), true);
+}
+
+void dealOneCard(vector<Card*> &deck, Player* player) {
+    player->addCard(deck.back());
+    deck.pop_back();
+}
+
 void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
     // Add Joker cards
     // Add Emperor cards    
@@ -83,26 +100,40 @@ void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
 }
 
 
-Card jokerCard(Joker * joker){
+void jokerCard(Joker * joker, Player* player){
     /*
-    (Joker Class): There will be X for number of player joker cards: 
-        these allow the player to set the value they want the card to be up 11
-        as that is the equivalent of an ace
+        Ask player to set the value they want the Joker card to be.
+        Create a new Card with the chosen value and the same suit as the Joker.
+        Remove the Joker card from the player's hand and replace it with the new Card.
     */
     int value;
-    cout<<"\n The Joker card is drawn. The max value is 11, minimum is 1"<<endl;
-    cout<<"If an invalid value is entered, the value will be set to 1"<<endl;
-    cout<<"what value do you want to set it to: ";
-    cin>>value;
+    cout << "\nThe Joker card is drawn. The max value is 11, minimum is 1" << endl;
+    cout << "If an invalid value is entered, the value will be set to 1" << endl;
+    cout << "What value do you want to set it to: ";
+    cin >> value;
+
     if(value > 11 || value < 1){
         value = 1;
     }
-    joker->SetValue(value);
-    return *joker;
+
+    //create a new Card with the chosen value and the same suit as the Joker
+    Card* newCard = createOneCard(value, Suit::SUIT_SPADE);
+
+    //search for the Joker card in the player's hand and replace it with the newCard
+    auto& hand = player->getHand();
+    for(auto it = hand.begin(); it != hand.end(); ++it){
+        if(*it == joker){
+            cout<<"Joker card found"<<endl;
+            it = hand.erase(it);
+            player->setCard(newCard, it - hand.begin());
+            break;
+        }
+    }
+    player->printHand();
 }
 
 
-Card emperorCard(Emperor * emperor, Dealer* dealer, vector<Card*> &deck){
+Card* emperorCard(Emperor * emperor, Dealer* dealer, vector<Card*> &deck){
     /*
     o	(Emperor Class) X num players / 2 cards, minimum 2; Emporer Card: 
         may choose one of the dealers cards or draw a new card. 
@@ -114,25 +145,35 @@ Card emperorCard(Emperor * emperor, Dealer* dealer, vector<Card*> &deck){
     cout<<"3. what does the Emperor do?"<<endl;
     cout<<"Enter choice: ";
     cin>>choice;
-
+    Card* newCard = nullptr;
     if(choice == 1){
-        // Choose one of the dealer's cards
+        // Choose one of the dealer's cards, replaces the emporer card
         cout<<"Dealer's hand: ";
         dealer->printHand();
-        cout<<"Enter the index of the card you want to choose: ";
+        cout<<"Enter the index of the card you want to choose (1-n): ";
         int index;
         cin>>index;
-        return dealer->getCard(index);
+        cout<<"Dealer's card chosen"<<endl;
+        newCard = dealer->getCard(index);
+        cout<<"New card: "<<*newCard<<endl;
+        //give dealer new card
+        dealOneCard(deck, dealer);        
+        return newCard;
     } else if(choice == 2){
         // Draw a new card
+        // draw a bew card from the deck, replaces the emporer card
         cout<<"The Emperor draws a new card"<<endl;
-        return *deck.back();
+        newCard = deck.back();
+        deck.pop_back();
+        cout<<" New card drawn"<<endl;
+        cout<<"New card: "<<*newCard<<endl;
+        return newCard;
     } else if(choice == 3){
         cout<<"The Emperor can choose one of the dealer's cards or draw a new card"<<endl;
         return emperorCard(emperor, dealer, deck);
     } else {
-        cout<<"Invalid choice"<<endl;
-        return *emperor;
+        cout<<"Invalid choice, try again"<<endl;
+        return emperorCard(emperor, dealer, deck);
     }
 }
 
@@ -147,6 +188,7 @@ Card aceCard(Card ace, int value){
     if(value > 11 || value < 1){
         value = 1;
     }
+    cout<<"Ace card value set to: "<<value<<endl;
     ace.setValue(value);
     return ace;
 }
@@ -183,6 +225,7 @@ void dealCards(vector<Card*> &deck, vector<Player*> &players) {
 }
 
 
+
 void playerTurn(vector<Card*> &deck, vector<Player*> &players) {
     // Player's turn
     for (auto player : players) {
@@ -193,20 +236,32 @@ void playerTurn(vector<Card*> &deck, vector<Player*> &players) {
         cout << player->getName() << "'s turn" << endl;
         cout << "Your hand: ";
         player->printHand();
-
+        Card *card= nullptr;
         // Looking in cards to see if there are any special cards, there are, then do the special card action
+        int cardIndex = 0;
         for (auto card : player->getHand()) {
             if (card->getSpecial() == Special::SPECIAL_JOKER) {
+                cout << "Your hand value: " << player->GetHandValue() << endl;
                 cout<<"You have a joker card"<<endl;
-                jokerCard(static_cast<Joker*>(card));
+                jokerCard(static_cast<Joker*>(card), player);
             } else if (card->getSpecial() == Special::SPECIAL_EMPEROR) {
+                cout << "Your hand value: " << player->GetHandValue() << endl;
                 cout<<"You have an emperor card"<<endl;
-                emperorCard(static_cast<Emperor*>(card), static_cast<Dealer*>(players.back()), deck);
+                card = emperorCard(static_cast<Emperor*>(card), static_cast<Dealer*>(players.back()), deck);
+                //replace the emperor card with the new card, weather it is the dealer's card or a new card
+                // error checking for index out of bounds
+                if(cardIndex > player->getHand().size()){
+                    cout<<"Invalid index, card not replaced"<<endl;
+                } 
+                cout<<"Player new card set"<<endl;
+                player->setCard(card, cardIndex);
             }
             else if(card->getSpecial() == Special::SPECIAL_ACE){
+                cout << "Your hand value: " << player->GetHandValue() << endl;
                 cout<<"You have an Ace card"<<endl;
                 aceCard(*card, 1);
             }
+            cardIndex++;
         }
         cout << "Your hand value: " << player->GetHandValue() << endl;
 
@@ -217,11 +272,25 @@ void playerTurn(vector<Card*> &deck, vector<Player*> &players) {
             cin >> choice;
             if (choice == 'h') {
                 Card* card = deck.back();
+                if(card->getSpecial() == Special::SPECIAL_JOKER){
+                    cout<<"You drew a joker card"<<endl;
+                    jokerCard(static_cast<Joker*>(card), player);
+                } else if(card->getSpecial() == Special::SPECIAL_EMPEROR){
+                    cout<<"You drew an emperor card"<<endl;
+                    card = emperorCard(static_cast<Emperor*>(card), static_cast<Dealer*>(players.back()), deck);
+                    player->addCard(card);
+                    cout << "Your hand: ";
+                    player->printHand();
+                    cout << "Your hand value: " << player->GetHandValue() << endl;
+                } else if(card->getSpecial() == Special::SPECIAL_ACE){
+                    cout<<"You drew an Ace card"<<endl;
+                    aceCard(*card, 1);
+                } else {
+                    // Add the card to the player's hand and remove it from the deck
+                    player->addCard(deck.back());
+                }
                 deck.pop_back();
                 player->addCard(card);
-
-
-
                 cout << "Your hand: ";
                 player->printHand();
                 cout << "Your hand value: " << player->GetHandValue() << endl;
@@ -307,6 +376,7 @@ void PlayBlackjack( vector<Player*> &players) {
     }
     //Task 1: Create a deck of cards
     std::vector<Card*> deck = createDeck();
+    // std::vector<Card*> deck = {};
     //Adding the dealer
     //Task 3: Add special cards to the deck
     AddSpecialCards(&deck, players.size());

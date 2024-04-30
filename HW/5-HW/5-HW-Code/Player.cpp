@@ -10,31 +10,25 @@ Player::Player(string name) {
 //     }
 // }
 
-std::vector<Card*> Player::getHand() {
+std::vector<Card*>& Player::getHand() // return a reference to the hand
+{
     return m_Hand;
 }
 int Player::GetHandValue() {
     int total = 0;
-    int numAces = 0;
-
     for (auto card : m_Hand) {
-        if (card->getValue() == 1) {
-            numAces++;
-        }
-        
         total += card->getValue();
     }
-    while (total <= 11 && numAces > 0) {
-        total += 10;
-        numAces--;
-    }
-    return total;
+   return total;
 }
 
 void Player::addCard(Card* pCard) {
     m_Hand.push_back(pCard);
 }
 
+void Player::setCard(Card* pCard, int index) {
+    m_Hand[index] = pCard;
+}
 void Player::ClearHand() {
     m_Hand.clear();
 }

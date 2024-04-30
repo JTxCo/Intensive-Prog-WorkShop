@@ -12,6 +12,7 @@ void Card::Flip()
 }
 void Card::setValue(int value)
 {
+    std::cout<<"setting value to: "<< value<<std::endl;
     m_value = value;
 }
 
@@ -27,15 +28,17 @@ int Card::getValue() const
                 // use the get value function
                 if(m_special == Special::SPECIAL_JOKER)
                 {
+                    std::cout<<"rank of joker"<<std::endl;
                     value = m_value;
                 }
                 else if(m_special == Special::SPECIAL_EMPEROR)
                 {
+                    std::cout<<"rank of emperor"<<std::endl;
                     value = m_value;
                 }
                 break;
             case Rank::RANK_ACE:
-
+                std::cout<<"rank of ace value: "<<m_value<<std::endl;
                 value = m_value;
                 break;
             case Rank::RANK_10:
