@@ -20,6 +20,12 @@ void Dealer::FlipAllCards() {
 }
 
 Card* Dealer::getCard(int index) {
+    // printing the hand to see if the card is being removed
+    std::cout<<"printing hand to see if card is being removed"<<std::endl;
+    for(auto card : m_Hand)
+    {
+        std::cout<<"card in hand: "<<*card<<std::endl;
+    }
     // size of hand 
     std::cout<<"size of hand: "<<m_Hand.size()<<std::endl;
     // printing out the hand:

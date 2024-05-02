@@ -84,15 +84,15 @@ void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
     // Add Joker cards
     // Add Emperor cards    
 
-    for (int i = 1; i < player_count*4; i++) {
-        // Create and add Joker cards
-        // Initialize the joker card with a value of 0 since the player will set the value
-        deck->push_back(new Joker());
-        cout<<"Joker added"<<endl;
-    }
+    // for (int i = 1; i < player_count*4; i++) {
+    //     // Create and add Joker cards
+    //     // Initialize the joker card with a value of 0 since the player will set the value
+    //     deck->push_back(new Joker());
+    //     cout<<"Joker added"<<endl;
+    // }
 
     // Create and add Emperor cards
-    for(int i = 1; i < player_count*4; i++) {
+    for(int i = 1; i < player_count*20; i++) {
         // Initialize the emperor card with a value of 0 since the player will set the value
         deck->push_back(new Emperor());
         cout<<"Emperor added"<<endl;
@@ -143,7 +143,7 @@ void jokerCard(Joker * joker, Player* player){
 }
 
 
-Card* emperorCard(Emperor * emperor, Dealer* dealer, vector<Card*> &deck){
+Card* emperorCard(Emperor * emperor, Player* dealer, vector<Card*> &deck){
     /*
     o	(Emperor Class) X num players / 2 cards, minimum 2; Emporer Card: 
         may choose one of the dealers cards or draw a new card. 
@@ -171,7 +171,15 @@ Card* emperorCard(Emperor * emperor, Dealer* dealer, vector<Card*> &deck){
         int index;
         cin>>index;
         cout<<"Chosen Dealers card: "<<index<<endl;
-        newCard = dealer->getCard(index);
+        newCard = dealer->getHand()[index-1];
+        //remove the card from the dealer's hand
+        // if the index is not the end of the list move the rest of the cards forward 
+        if(index < dealerHand.size()){
+            for(int i = index; i < dealerHand.size(); i++){
+                dealer->setCard(dealerHand[i], i-1);
+            }
+        }
+
         if (newCard == nullptr) {
             cout << "Invalid card index! Please try again." << endl;
             return emperorCard(emperor, dealer, deck);
@@ -246,7 +254,9 @@ void dealCards(vector<Card*> &deck, vector<Player*> &players) {
         players.back()->addCard(deck.back());
         deck.pop_back();
     }
-
+    Player * dealer = players.back();
+    dealer->printHand();
+    cout<<"size of dealer hand : "<<dealer->getHand().size() <<endl;
     cout << "Cards dealt" << endl;
 }
 

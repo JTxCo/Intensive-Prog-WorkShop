@@ -3,7 +3,6 @@
 Card::Card(Suit suit, Rank rank, bool isFaceUp)
     : m_suit(suit), m_rank(rank), m_isFaceUp(isFaceUp)
 {
-    // Your code here
 }
 
 void Card::Flip()
