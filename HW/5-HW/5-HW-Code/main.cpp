@@ -84,7 +84,7 @@ void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
     // Add Joker cards
     // Add Emperor cards    
 
-    // for (int i = 1; i < player_count*8; i++) {
+    // for (int i = 1; i < player_count*4; i++) {
     //     // Create and add Joker cards
     //     // Initialize the joker card with a value of 0 since the player will set the value
     //     deck->push_back(new Joker());
@@ -92,18 +92,18 @@ void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
     // }
 
     // Create and add Emperor cards
-    // for(int i = 1; i < player_count*4; i++) {
-    //     // Initialize the emperor card with a value of 0 since the player will set the value
-    //     deck->push_back(new Emperor());
-    //     cout<<"Emperor added"<<endl;
-    // }
-
-    // Add additional ACE cards
     for(int i = 1; i < player_count*4; i++) {
         // Initialize the emperor card with a value of 0 since the player will set the value
-        deck->push_back(new Card(Suit::SUIT_CLUB, Rank::RANK_ACE, true));
-        cout<<"Ace added"<<endl;
+        deck->push_back(new Emperor());
+        cout<<"Emperor added"<<endl;
     }
+
+    // Add additional ACE cards
+    // for(int i = 1; i < player_count*4; i++) {
+    //     // Initialize the emperor card with a value of 0 since the player will set the value
+    //     deck->push_back(new Card(Suit::SUIT_CLUB, Rank::RANK_ACE, true));
+    //     cout<<"Ace added"<<endl;
+    // }
 }
 
 
