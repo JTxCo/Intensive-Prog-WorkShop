@@ -15,4 +15,6 @@ class Dealer : public Player
         Card* getCard(int index);
         void FlipFirstCard();
         void FlipAllCards();
+        int sizeOfHand();
+        vector<Card*>* getRealHand();
 };

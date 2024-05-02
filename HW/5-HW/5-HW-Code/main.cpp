@@ -84,12 +84,12 @@ void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
     // Add Joker cards
     // Add Emperor cards    
 
-    // for (int i = 1; i < player_count*4; i++) {
-    //     // Create and add Joker cards
-    //     // Initialize the joker card with a value of 0 since the player will set the value
-    //     deck->push_back(new Joker());
-    //     cout<<"Joker added"<<endl;
-    // }
+    for (int i = 1; i < player_count*4; i++) {
+        // Create and add Joker cards
+        // Initialize the joker card with a value of 0 since the player will set the value
+        deck->push_back(new Joker());
+        cout<<"Joker added"<<endl;
+    }
 
     // Create and add Emperor cards
     for(int i = 1; i < player_count*4; i++) {
@@ -159,12 +159,27 @@ Card* emperorCard(Emperor * emperor, Dealer* dealer, vector<Card*> &deck){
     if(choice == 1){
         // Choose one of the dealer's cards, replaces the emporer card
         cout<<"Dealer's hand: ";
-        dealer->printHand();
+        // dealer->printHand();        
+        // old way of getting hand
+        vector<Card*> dealerHand = dealer->getHand();
+        for(int i = 0; i < dealerHand.size(); i++){
+            cout<<i+1<<". "<<*dealerHand[i]<<endl;
+            // dealer->setCard(dealerHand[i], i);
+        }
+        // cout<<"size of dealer hand: "<<dealer->sizeOfHand()<<endl;
         cout<<"Enter the index of the card you want to choose (1-n): ";
         int index;
         cin>>index;
-        cout<<"Dealer's card chosen"<<endl;
+        cout<<"Chosen Dealers card: "<<index<<endl;
         newCard = dealer->getCard(index);
+        if (newCard == nullptr) {
+            cout << "Invalid card index! Please try again." << endl;
+            return emperorCard(emperor, dealer, deck);
+        } else {
+            cout << "New card: " << *newCard << endl;
+            dealOneCard(deck, dealer);
+            return newCard;
+        }
         cout<<"New card: "<<*newCard<<endl;
         //give dealer new card
         dealOneCard(deck, dealer);        

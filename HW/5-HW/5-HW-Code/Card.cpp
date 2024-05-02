@@ -38,7 +38,7 @@ int Card::getValue() const
                 }
                 break;
             case Rank::RANK_ACE:
-                std::cout<<"rank of ace value: "<<m_value<<std::endl;
+                // std::cout<<"rank of ace value: "<<m_value<<std::endl;
                 value = m_value;
                 break;
             case Rank::RANK_10:

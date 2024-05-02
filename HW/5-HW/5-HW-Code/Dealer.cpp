@@ -20,6 +20,16 @@ void Dealer::FlipAllCards() {
 }
 
 Card* Dealer::getCard(int index) {
+    // size of hand 
+    std::cout<<"size of hand: "<<m_Hand.size()<<std::endl;
+    // printing out the hand:
+    for (auto card : m_Hand) {
+        std::cout << *card << " ";
+    }
+
+
+
+
     index -= 1; // Adjust index to 0-based
     if(index < m_Hand.size() && index >= 0) { // Check if index is within bounds
         std::cout<<"Dealer's card: "<<*m_Hand[index]<<"\n";
@@ -29,4 +39,13 @@ Card* Dealer::getCard(int index) {
         return cardToReturn;
     }
     return nullptr; // Return null if no card at given index, you should check this in your main code
+}
+
+
+int Dealer::sizeOfHand() {
+    return m_Hand.size();
+}
+
+vector<Card*>* Dealer::getRealHand() {
+    return &m_Hand;
 }
