@@ -84,12 +84,12 @@ void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
     // Add Joker cards
     // Add Emperor cards    
 
-    for (int i = 1; i < player_count*8; i++) {
-        // Create and add Joker cards
-        // Initialize the joker card with a value of 0 since the player will set the value
-        deck->push_back(new Joker());
-        cout<<"Joker added"<<endl;
-    }
+    // for (int i = 1; i < player_count*8; i++) {
+    //     // Create and add Joker cards
+    //     // Initialize the joker card with a value of 0 since the player will set the value
+    //     deck->push_back(new Joker());
+    //     cout<<"Joker added"<<endl;
+    // }
 
     // Create and add Emperor cards
     // for(int i = 1; i < player_count*4; i++) {
@@ -97,6 +97,13 @@ void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
     //     deck->push_back(new Emperor());
     //     cout<<"Emperor added"<<endl;
     // }
+
+    // Add additional ACE cards
+    for(int i = 1; i < player_count*4; i++) {
+        // Initialize the emperor card with a value of 0 since the player will set the value
+        deck->push_back(new Card(Suit::SUIT_CLUB, Rank::RANK_ACE, true));
+        cout<<"Ace added"<<endl;
+    }
 }
 
 
@@ -180,7 +187,7 @@ Card* emperorCard(Emperor * emperor, Dealer* dealer, vector<Card*> &deck){
     }
 }
 
-Card aceCard(Card ace, int value){
+Card* aceCard(Card* ace, int value){
     /*
     o	(Ace Class) Ace Card: may be used as 1 or 11
     */
@@ -192,7 +199,8 @@ Card aceCard(Card ace, int value){
         value = 1;
     }
     cout<<"Ace card value set to: "<<value<<endl;
-    ace.setValue(value);
+    ace->setValue(value);
+
     return ace;
 }
 
@@ -262,7 +270,7 @@ void playerTurn(vector<Card*> &deck, vector<Player*> &players) {
             else if(card->getSpecial() == Special::SPECIAL_ACE){
                 cout << "Your hand value: " << player->GetHandValue() << endl;
                 cout<<"You have an Ace card"<<endl;
-                aceCard(*card, 1);
+                aceCard(card, 1);
             }
             cardIndex++;
         }
@@ -289,7 +297,7 @@ void playerTurn(vector<Card*> &deck, vector<Player*> &players) {
                     player->setCard(card, player->getHand().size()-1);
                 } else if(card->getSpecial() == Special::SPECIAL_ACE){
                     cout<<"You drew an Ace card"<<endl;
-                    aceCard(*card, 1);
+                    aceCard(card, 1);
                 }
                 else{
                     player->addCard(card);
