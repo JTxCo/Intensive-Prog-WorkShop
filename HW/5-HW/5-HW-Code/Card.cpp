@@ -28,12 +28,12 @@ int Card::getValue() const
                 // use the get value function
                 if(m_special == Special::SPECIAL_JOKER)
                 {
-                    std::cout<<"rank of joker"<<std::endl;
+                    // std::cout<<"rank of joker"<<std::endl;
                     value = m_value;
                 }
                 else if(m_special == Special::SPECIAL_EMPEROR)
                 {
-                    std::cout<<"rank of emperor"<<std::endl;
+                    // std::cout<<"rank of emperor"<<std::endl;
                     value = m_value;
                 }
                 break;

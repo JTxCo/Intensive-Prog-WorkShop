@@ -56,6 +56,7 @@ class Card
         virtual void setSpecial(Special special);
         virtual Special getSpecial() const;
         friend std::ostream& operator<<(std::ostream& out, const Card& card);
+        virtual ~Card() = default;
 };
 
 #endif // CARD_HPP

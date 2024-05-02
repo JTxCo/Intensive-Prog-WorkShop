@@ -84,7 +84,7 @@ void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
     // Add Joker cards
     // Add Emperor cards    
 
-    for (int i = 1; i < player_count*4; i++) {
+    for (int i = 1; i < player_count*8; i++) {
         // Create and add Joker cards
         // Initialize the joker card with a value of 0 since the player will set the value
         deck->push_back(new Joker());
@@ -92,11 +92,11 @@ void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
     }
 
     // Create and add Emperor cards
-    for(int i = 1; i < player_count*4; i++) {
-        // Initialize the emperor card with a value of 0 since the player will set the value
-        deck->push_back(new Emperor());
-        cout<<"Emperor added"<<endl;
-    }
+    // for(int i = 1; i < player_count*4; i++) {
+    //     // Initialize the emperor card with a value of 0 since the player will set the value
+    //     deck->push_back(new Emperor());
+    //     cout<<"Emperor added"<<endl;
+    // }
 }
 
 
@@ -122,10 +122,13 @@ void jokerCard(Joker * joker, Player* player){
     //search for the Joker card in the player's hand and replace it with the newCard
     auto& hand = player->getHand();
     for(auto it = hand.begin(); it != hand.end(); ++it){
+        cout<<"In Joker card loop"<<endl;
         if(*it == joker){
             cout<<"Joker card found"<<endl;
-            it = hand.erase(it);
-            player->setCard(newCard, it - hand.begin());
+            delete *it; // Free the memory occupied by Joker
+            *it = newCard;  // Replace the Joker with the new card directly in the hand
+            cout<<"length of player hand: "<<hand.size()<<endl;
+            cout<<"value of last card: "<<hand.back()->getValue()<<endl;
             break;
         }
     }
@@ -270,27 +273,27 @@ void playerTurn(vector<Card*> &deck, vector<Player*> &players) {
         do {
             cout << "Do you want to hit or stand? (h/s): ";
             cin >> choice;
+            cout << "Your hand: ";
+            player->printHand();
+            cout << "Your hand value: " << player->GetHandValue() << endl;
             if (choice == 'h') {
                 Card* card = deck.back();
+                deck.pop_back(); // You should pop the card from the deck immediately after you get it
+
                 if(card->getSpecial() == Special::SPECIAL_JOKER){
                     cout<<"You drew a joker card"<<endl;
                     jokerCard(static_cast<Joker*>(card), player);
                 } else if(card->getSpecial() == Special::SPECIAL_EMPEROR){
                     cout<<"You drew an emperor card"<<endl;
                     card = emperorCard(static_cast<Emperor*>(card), static_cast<Dealer*>(players.back()), deck);
-                    player->addCard(card);
-                    cout << "Your hand: ";
-                    player->printHand();
-                    cout << "Your hand value: " << player->GetHandValue() << endl;
+                    player->setCard(card, player->getHand().size()-1);
                 } else if(card->getSpecial() == Special::SPECIAL_ACE){
                     cout<<"You drew an Ace card"<<endl;
                     aceCard(*card, 1);
-                } else {
-                    // Add the card to the player's hand and remove it from the deck
-                    player->addCard(deck.back());
                 }
-                deck.pop_back();
-                player->addCard(card);
+                else{
+                    player->addCard(card);
+                }
                 cout << "Your hand: ";
                 player->printHand();
                 cout << "Your hand value: " << player->GetHandValue() << endl;
