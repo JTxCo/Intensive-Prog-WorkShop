@@ -7,10 +7,8 @@ using std::vector;
 
 class Dealer : public Player
 {
-    private:
-        vector<Card*> m_Hand;
     public:
-        Dealer(string name);
+        explicit Dealer(string name);
         virtual ~Dealer();
         Card* getCard(int index);
         void FlipFirstCard();

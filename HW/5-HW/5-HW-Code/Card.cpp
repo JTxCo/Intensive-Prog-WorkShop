@@ -1,14 +1,12 @@
 #include "Card.hpp"
-
+#include <iostream>
 Card::Card(Suit suit, Rank rank, bool isFaceUp)
     : m_suit(suit), m_rank(rank), m_isFaceUp(isFaceUp)
 {
+    // Normal cards are not sepcial so they don't have a special value
+    // m_special = Special::SPECIAL_MAX;
 }
 
-void Card::Flip()
-{
-    m_isFaceUp = !m_isFaceUp;
-}
 void Card::setValue(int value)
 {
     std::cout<<"setting value to: "<< value<<std::endl;
@@ -54,15 +52,7 @@ int Card::getValue() const
 }
 
 
-Rank Card::getRank() const
-{
-    return m_rank;
-}
 
-Suit Card::getSuit() const
-{
-    return m_suit;
-}
 
 void  Card::setSpecial(Special special)
 {

@@ -84,15 +84,15 @@ void AddSpecialCards(std::vector<Card*> *deck, int player_count) {
     // Add Joker cards
     // Add Emperor cards    
 
-    // for (int i = 1; i < player_count*4; i++) {
-    //     // Create and add Joker cards
-    //     // Initialize the joker card with a value of 0 since the player will set the value
-    //     deck->push_back(new Joker());
-    //     cout<<"Joker added"<<endl;
-    // }
+    for (int i = 1; i < player_count*4; i++) {
+        // Create and add Joker cards
+        // Initialize the joker card with a value of 0 since the player will set the value
+        deck->push_back(new Joker());
+        cout<<"Joker added"<<endl;
+    }
 
     // Create and add Emperor cards
-    for(int i = 1; i < player_count*20; i++) {
+    for(int i = 1; i < player_count*4; i++) {
         // Initialize the emperor card with a value of 0 since the player will set the value
         deck->push_back(new Emperor());
         cout<<"Emperor added"<<endl;
@@ -272,7 +272,7 @@ void playerTurn(vector<Card*> &deck, vector<Player*> &players) {
         cout << player->getName() << "'s turn" << endl;
         cout << "Your hand: ";
         player->printHand();
-        Card *card= nullptr;
+        // Card *card= nullptr;
         // Looking in cards to see if there are any special cards, there are, then do the special card action
         int cardIndex = 0;
         for (auto card : player->getHand()) {
@@ -291,6 +291,19 @@ void playerTurn(vector<Card*> &deck, vector<Player*> &players) {
                 } 
                 cout<<"Player new card set"<<endl;
                 player->setCard(card, cardIndex);
+                if(card->getSpecial() == Special::SPECIAL_JOKER){
+                    cout<<"You drew a joker card"<<endl;
+                    jokerCard(static_cast<Joker*>(card), player);
+                }
+                else if(card->getSpecial() == Special::SPECIAL_ACE){
+                    cout<<"You drew an Ace card"<<endl;
+                    aceCard(card, 1);
+                }
+                else if(card->getSpecial() == Special::SPECIAL_EMPEROR){
+                    cout<<"You drew an emperor card"<<endl;
+                    card = emperorCard(static_cast<Emperor*>(card), static_cast<Dealer*>(players.back()), deck);
+                    player->setCard(card, player->getHand().size()-1);
+                }
             }
             else if(card->getSpecial() == Special::SPECIAL_ACE){
                 cout << "Your hand value: " << player->GetHandValue() << endl;

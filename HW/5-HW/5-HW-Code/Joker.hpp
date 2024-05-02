@@ -12,9 +12,6 @@
 
 class Joker : public Card
 {
-    private:  
-        Special m_special = Special::SPECIAL_JOKER;  
-        int m_value;
     public:
         Joker();
         

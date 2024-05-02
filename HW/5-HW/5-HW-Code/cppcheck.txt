@@ -1,0 +1,203 @@
+All the errors:
+
+Card.hpp:4:0: information: Include file: <iostream> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <iostream>
+^
+Card.cpp:3:7: warning: Member variable 'Card::m_special' is not initialized in the constructor. [uninitMemberVar]
+Card::Card(Suit suit, Rank rank, bool isFaceUp)
+      ^
+1/6 files checked 18% done
+Checking Dealer.cpp ...
+Dealer.hpp:1:0: information: Include file: <iostream> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <iostream>
+^
+Dealer.hpp:2:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+Player.hpp:3:0: information: Include file: <iostream> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <iostream>
+^
+Player.hpp:4:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+Dealer.hpp:11:23: warning: The class 'Dealer' defines member variable with name 'm_Hand' also defined in its parent class 'Player'. [duplInheritedMember]
+        vector<Card*> m_Hand;
+                      ^
+Player.hpp:13:24: note: Parent variable 'Player::m_Hand'
+    std::vector<Card*> m_Hand;
+                       ^
+Dealer.hpp:11:23: note: Derived variable 'Dealer::m_Hand'
+        vector<Card*> m_Hand;
+                      ^
+Player.hpp:16:5: style: Class 'Player' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    Player(string name);
+    ^
+Dealer.hpp:13:9: style: Class 'Dealer' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+        Dealer(string name);
+        ^
+Dealer.hpp:14:18: style: The destructor '~Dealer' overrides a destructor in a base class but is not marked with a 'override' specifier. [missingOverride]
+        virtual ~Dealer();
+                 ^
+Player.hpp:17:14: note: Virtual destructor in base class
+    virtual ~Player() = default;
+             ^
+Dealer.hpp:14:18: note: Destructor in derived class
+        virtual ~Dealer();
+                 ^
+Dealer.cpp:5:23: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+Dealer::Dealer(string name) : Player(name) {}
+                      ^
+2/6 files checked 24% done
+Checking Emperor.cpp ...
+Emperor.hpp:11:13: warning: The class 'Emperor' defines member variable with name 'm_special' also defined in its parent class 'Card'. [duplInheritedMember]
+    Special m_special = Special::SPECIAL_EMPEROR;
+            ^
+Card.hpp:48:17: note: Parent variable 'Card::m_special'
+        Special m_special;
+                ^
+Emperor.hpp:11:13: note: Derived variable 'Emperor::m_special'
+    Special m_special = Special::SPECIAL_EMPEROR;
+            ^
+Emperor.hpp:12:9: warning: The class 'Emperor' defines member variable with name 'm_value' also defined in its parent class 'Card'. [duplInheritedMember]
+    int m_value;
+        ^
+Card.hpp:46:13: note: Parent variable 'Card::m_value'
+        int m_value = 0;
+            ^
+Emperor.hpp:12:9: note: Derived variable 'Emperor::m_value'
+    int m_value;
+        ^
+Emperor.cpp:12:15: warning: The class 'Emperor' defines member function with name 'setValue' also defined in its parent class 'Card'. [duplInheritedMember]
+void Emperor::setValue(int value){
+              ^
+Card.hpp:52:14: note: Parent function 'Card::setValue'
+        void setValue(int value);
+             ^
+Emperor.cpp:12:15: note: Derived function 'Emperor::setValue'
+void Emperor::setValue(int value){
+              ^
+3/6 files checked 26% done
+Checking Joker.cpp ...
+Joker.hpp:1:0: information: Include file: <iostream> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <iostream>
+^
+Joker.hpp:16:17: warning: The class 'Joker' defines member variable with name 'm_special' also defined in its parent class 'Card'. [duplInheritedMember]
+        Special m_special = Special::SPECIAL_JOKER;
+                ^
+Card.hpp:48:17: note: Parent variable 'Card::m_special'
+        Special m_special;
+                ^
+Joker.hpp:16:17: note: Derived variable 'Joker::m_special'
+        Special m_special = Special::SPECIAL_JOKER;
+                ^
+Joker.hpp:17:13: warning: The class 'Joker' defines member variable with name 'm_value' also defined in its parent class 'Card'. [duplInheritedMember]
+        int m_value;
+            ^
+Card.hpp:46:13: note: Parent variable 'Card::m_value'
+        int m_value = 0;
+            ^
+Joker.hpp:17:13: note: Derived variable 'Joker::m_value'
+        int m_value;
+            ^
+4/6 files checked 27% done
+Checking Player.cpp ...
+Player.cpp:4:5: performance: Variable 'name_' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+    name_ = name;
+    ^
+Player.hpp:25:12: performance: Function 'getName()' should return member 'name_' by const reference. [returnByReference]
+    string getName();
+           ^
+Player.cpp:3:23: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+Player::Player(string name) {
+                      ^
+Player.cpp:19:15: style: Variable 'card' can be declared as pointer to const [constVariablePointer]
+    for (auto card : m_Hand) {
+              ^
+Player.cpp:42:15: style: Variable 'card' can be declared as pointer to const [constVariablePointer]
+    for (auto card : m_Hand) {
+              ^
+Player.cpp:20:15: style: Consider using std::accumulate algorithm instead of a raw loop. [useStlAlgorithm]
+        total += card->getValue();
+              ^
+5/6 files checked 31% done
+Checking main.cpp ...
+main.cpp:3:0: information: Include file: <iostream> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <iostream>
+^
+main.cpp:4:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+main.cpp:5:0: information: Include file: <chrono> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <chrono>
+^
+main.cpp:6:0: information: Include file: <random> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <random>
+^
+main.cpp:7:0: information: Include file: <algorithm> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <algorithm>
+^
+Emperor.hpp:16:10: warning: The class 'Emperor' defines member function with name 'setValue' also defined in its parent class 'Card'. [duplInheritedMember]
+    void setValue(int value);
+         ^
+Card.hpp:52:14: note: Parent function 'Card::setValue'
+        void setValue(int value);
+             ^
+Emperor.hpp:16:10: note: Derived function 'Emperor::setValue'
+    void setValue(int value);
+         ^
+main.cpp:278:19: style: Local variable 'card' shadows outer variable [shadowVariable]
+        for (auto card : player->getHand()) {
+                  ^
+main.cpp:275:15: note: Shadowed declaration
+        Card *card= nullptr;
+              ^
+main.cpp:278:19: note: Shadow variable
+        for (auto card : player->getHand()) {
+                  ^
+main.cpp:313:23: style: Local variable 'card' shadows outer variable [shadowVariable]
+                Card* card = deck.back();
+                      ^
+main.cpp:275:15: note: Shadowed declaration
+        Card *card= nullptr;
+              ^
+main.cpp:313:23: note: Shadow variable
+                Card* card = deck.back();
+                      ^
+main.cpp:130:11: style: Variable 'hand' can be declared as reference to const [constVariableReference]
+    auto& hand = player->getHand();
+          ^
+main.cpp:110:24: style: Parameter 'joker' can be declared as pointer to const [constParameterPointer]
+void jokerCard(Joker * joker, Player* player){
+                       ^
+main.cpp:275:15: style: Variable 'card' can be declared as pointer to const [constVariablePointer]
+        Card *card= nullptr;
+              ^
+main.cpp:275:15: style: Variable 'card' is assigned a value that is never used. [unreadVariable]
+        Card *card= nullptr;
+              ^
+6/6 files checked 100% done
+Card.cpp:57:0: style: The function 'getRank' is never used. [unusedFunction]
+Rank Card::getRank() const
+^
+Card.cpp:62:0: style: The function 'getSuit' is never used. [unusedFunction]
+Suit Card::getSuit() const
+^
+Dealer.cpp:12:0: style: The function 'FlipFirstCard' is never used. [unusedFunction]
+void Dealer::FlipFirstCard() {
+^
+Dealer.cpp:16:0: style: The function 'FlipAllCards' is never used. [unusedFunction]
+void Dealer::FlipAllCards() {
+^
+Dealer.cpp:22:0: style: The function 'getCard' is never used. [unusedFunction]
+Card* Dealer::getCard(int index) {
+^
+Dealer.cpp:51:0: style: The function 'sizeOfHand' is never used. [unusedFunction]
+int Dealer::sizeOfHand() {
+^
+Dealer.cpp:55:0: style: The function 'getRealHand' is never used. [unusedFunction]
+vector<Card*>* Dealer::getRealHand() {
+^
+Joker.cpp:11:0: style: The function 'SetValue' is never used. [unusedFunction]
+void Joker::SetValue(int value)
+^
+nofile:0:0: information: Active checkers: 163/712 (use --checkers-report=<filename> to see details) [checkersReport]

@@ -13,7 +13,7 @@ protected:
     std::vector<Card*> m_Hand;
     string name_;
 public:
-    Player(string name);
+    explicit Player(string name);
     virtual ~Player() = default;
     std::vector<Card*>& getHand();
     int GetHandValue();

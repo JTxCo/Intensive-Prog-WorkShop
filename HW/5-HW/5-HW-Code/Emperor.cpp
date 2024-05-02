@@ -9,10 +9,6 @@ int Emperor::getValue() const{
     return m_value;
 }
 
-void Emperor::setValue(int value){
-    m_value = value;
-}
-
 std::ostream& operator<<(std::ostream& out, const Emperor& emperor) {
     out << "Emperor card with value " << emperor.getValue();
     return out;

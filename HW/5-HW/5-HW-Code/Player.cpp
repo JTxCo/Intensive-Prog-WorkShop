@@ -1,7 +1,6 @@
 #include "Player.hpp"
 
-Player::Player(string name) {
-    name_ = name;
+Player::Player(string name) : name_(name){
 }
 
 // Player::~Player() {
